@@ -1,0 +1,144 @@
+#!/usr/bin/python
+
+import sys, datetime, threading, time
+import os, signal, subprocess #This is used when exiting the program
+from envDB import dbSensorLayer as envDB
+from envSensors import photocell_lib as photocell   #MOCK CLASS ADDED HERE
+from envSensors.tempHumidity_lib import HTU21D   #MOCK CLASS ADDED HERE
+import wifiChecker.wifiMon as wifiMon
+import requests
+import logging
+import logging.config
+import ConfigParser
+
+next_call_Sensors = time.time()
+next_call_Wifi = time.time()
+reading = HTU21D()
+dbFilePath = ''
+wifiCheckFrequency = 60
+
+###
+### Below code KILLS any currently running smartWine.py process
+### EXCLUDING itself
+###
+
+myPid = os.getpid()
+print "My PID= [" + str(myPid) + "]"
+
+
+cmd = "ps -ef | grep 'python sensorClient.py' | grep -v grep | awk '{print $2}'"
+p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+out = p.communicate() [0]
+for pid in out.splitlines():
+    if myPid != pid:
+        #print pid
+        if int(pid) != int(myPid):
+            try:
+                os.kill(int(pid), signal.SIGKILL)
+                print "KILLED old sensorClient.py record [" + pid + "]"
+            except:
+                print "err"
+            
+
+
+#Define the Error Log Details
+logging.config.fileConfig('logging.ini')
+logger = logging.getLogger('sensorLogger')
+
+config = ''
+
+def setUpConfiguration():
+	global config, dbFilePath, wifiCheckFrequency
+	config = ConfigParser.ConfigParser()
+	try:
+		config.read('configuration.ini')
+		dbFilePath = config.get('DEFAULT', 'database')
+		logger.debug('DataBase FilePath: %s ', dbFilePath )
+
+		wifiCheckFrequency =  int(config.get('DEFAULT', 'wifiCheckFrequency'))
+		# wifiCheckFrequency = config.get('DEFAULT', 'wifiCheckFrequency')
+		logger.debug('wifiCheckFrequency is: %s ', wifiCheckFrequency )
+	except Exception as e:
+		logger.critical('Could NOT read Configuration! Error: %s ', format(e) )
+
+def startup():
+	logger.info("CTRL+C to break and exit!")
+	monitorWifi()
+	readAndSubmitSensorValues()
+	
+
+def readAndSubmitSensorValues():
+ 	global next_call_Sensors, reading
+ 	# print datetime.datetime.now()
+
+ 	#Call to get temperature readings
+ 	apiKey = envDB.getAPIKey()
+ 	sensorId = envDB.getSensorId()
+ 	logger.debug("apiKey fetched is: %s", apiKey)
+ 	logger.info("SensorId is: %s", sensorId)
+
+ 	#temperature = reading.read_temperature()
+ 	temperature = float("{0:.2f}".format(reading.read_temperature()))
+ 	humidity = float("{0:.2f}".format(reading.read_humidity()))
+ 	light = float("{0:.2f}".format(photocell.photocellRead(18)))
+ 	# light = photocell.photocellRead(18)
+
+ 	logger.info("Temperature Reading is: %s", format(temperature))
+ 	logger.info("Humidity Reading is: %s", format(humidity))
+ 	logger.info("Light Reading is: %s", format(light))
+
+ 	#DB call to get Database endpoints to invoke
+
+
+ 	try:
+	 	getEndpoint = envDB.getEndpointList()
+
+
+	 	for endpoint in getEndpoint:
+	 		#Call to post the values via REST
+			#url = 'http://localhost/website/api/v1/sensorReading?apiKey={:d}&sensorId={:d}&temperature={:f}&humidity={:f}&light={:f}'.format(apiKey, sensorId, temperature, humidity, light)
+			url = endpoint.format(apiKey, sensorId, temperature, humidity, light)
+			logger.debug("Created endpoint URL is: %s", url)
+			#data = '{"query":{"bool":{"must":[{"text":{"record.document":"SOME_JOURNAL"}},{"text":{"record.articleTitle":"farmers"}}],"must_not":[],"should":[]}},"from":0,"size":50,"sort":[],"facets":{}}'
+			#response = requests.get(url, data=data)
+			response = requests.put(url)
+			logger.debug("REST Response is: %s", response)
+	except Exception as e:
+		logger.critical("Error occured when calling REST API. Error: %s", format(e))
+
+ 	#Get updated polling interval
+ 	polling_Interval = envDB.getPollingFrequency()
+ 	next_call_Sensors = next_call_Sensors+polling_Interval
+ 	threading.Timer( next_call_Sensors - time.time(), readAndSubmitSensorValues ).start()
+
+
+def monitorWifi():
+	global next_call_Wifi
+	wifiMon.keepConnectionAlive()         # Verify the wifi is still alive. If lost, a reconnection will occur within the method. 
+	#Get updated polling interval
+ 	next_call_Wifi = next_call_Wifi+wifiCheckFrequency # Add time defined inside the configuration.ini (in seconds)
+ 	threading.Timer( next_call_Wifi - time.time(), monitorWifi ).start()
+
+# Main method
+def main (argv):
+	print 'CTRL+C to break and exit'
+	logger.info('***** SensorCLIENT APPLICATION STARTED *****')
+	global config
+
+	# Setup internal configurations reader
+	setUpConfiguration()
+	wifiMon.setUp(config)   # Setting up the wifi Monitor
+    
+	startup()
+    #logger.debug('Number of system Arguments passed in: %s', len(argv) )
+
+
+if __name__ == '__main__':
+	# try:
+	main(sys.argv) # Executing the main funciton
+	# except KeyboardInterrupt:
+	# 	logger.info('SENSOR CLIENT closing')
+	# finally:
+	# 	logger.info('Cleaning up any running processes')
+	# 	# os.killpg(0, signal.SIGKILL) # kill all processes in my group
+	# logger.debug('SENSOR CLIENT.Main end')

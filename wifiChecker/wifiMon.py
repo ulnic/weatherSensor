@@ -1,21 +1,20 @@
-import os
-import subprocess
-import sys
+#!/usr/bin/python
+
+import os, subprocess, sys, time
 import logging
 import ConfigParser
-import time
 
 ##
 ## Define Settings 
 ##
 wifiMonHostname = '' #"8.8.8.8" #Googles DNS Server
-logger = logging.getLogger('swLogger')
+logger = logging.getLogger('sensorLogger')
 ## END
 
 def setUpLoggingForStandalone():
     global logger
     #Initialise the logger for standalone
-    logger = logging.getLogger('swLogger')
+    logger = logging.getLogger('sensorLogger')
 
     # create logger with 'spam_application'
     logger.setLevel(logging.DEBUG)

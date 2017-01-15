@@ -1,11 +1,10 @@
 #!/usr/bin/python
 
-import sys, datetime, threading, time
-import os, signal, subprocess #This is used when exiting the program
-from envSensors import photocell_lib as photocell   #MOCK CLASS ADDED HERE
-from envSensors.tempHumidity_lib import HTU21D   #MOCK CLASS ADDED HERE
+import sys, datetime, threading, time, requests
+import os, signal, subprocess # This is used when exiting the program
+from envSensors import photocell_lib as photocell 
+from envSensors.tempHumidity_lib import HTU21D 
 import wifiChecker.wifiMon as wifiMon
-import requests
 import logging, logging.config
 import ConfigParser
 import paho.mqtt.client as mqtt
@@ -16,9 +15,19 @@ reading = HTU21D()
 pollingInterval = 30
 wifiCheckFrequency = 60
 mqtt_host = "127.0.0.1"
+config = '' 
+MsgTopicAbbreviation = 'weatherSensor'
+SensorLocation = 'Room1'
+readTemperature=TRUE
+messageTopicTemperature = ''
+readHumidity=TRUE
+messageTopicHumidity = ''
+readLight=TRUE
+messageTopicLight = ''
+
 
 ###
-### Below code KILLS any currently running smartWine.py process
+### Below code KILLS any currently running sensorClient.py process
 ### EXCLUDING itself
 ###
 
@@ -38,24 +47,33 @@ for pid in out.splitlines():
                 print "KILLED old sensorClient.py record [" + pid + "]"
             except:
                 print "err"
-            
 
 
 #Define the Error Log Details
 logging.config.fileConfig('logging.ini')
 logger = logging.getLogger('sensorLogger')
 
-config = ''
+
 
 def setUpConfiguration():
-	global config, mqtt_host, wifiCheckFrequency, pollingInterval
+	global config, mqtt_host, wifiCheckFrequency, pollingInterval, readTemperature, readHumidity, readLight
+	global SensorLocation, MsgTopicAbbreviation
+
 	config = ConfigParser.ConfigParser()
 	try:
 		config.read('configuration.ini')
-		mqtt_host = config.get('DEFAULT', 'mqtt_host')
+		mqtt_host = config.get('MQTT', 'mqtt_host')
 		pollingInterval = int(config.get('DEFAULT', 'pollingInterval'))
 
 		wifiCheckFrequency =  int(config.get('DEFAULT', 'wifiCheckFrequency'))
+
+		readTemperature = bool(config.get('SENSOR', 'readTemperature'))
+		readHumidity = bool(config.get('SENSOR', 'readHumidity'))
+		readLight = bool(config.get('SENSOR', 'readLight'))
+		SensorLocation = config.get('SENSOR', 'SensorLocation')
+
+		MsgTopicAbbreviation = config.get('DEFAULT', 'MsgTopicAbbreviation')
+
 		logger.debug('wifiCheckFrequency is: %s ', wifiCheckFrequency )
 	except Exception as e:
 		logger.critical('Could NOT read Configuration! Error: %s ', format(e) )
@@ -68,17 +86,33 @@ def startup():
 
 def readAndSubmitSensorValues():
  	global next_call_Sensors, reading, mqtt_host, pollingInterval
- 	# print datetime.datetime.now()
 
- 	#temperature = reading.read_temperature()
- 	temperature = float("{0:.1f}".format(reading.read_temperature()))
- 	humidity = float("{0:.1f}".format(reading.read_humidity()))
- 	light = float("{0:.0f}".format(photocell.photocellRead(18)))
- 	# light = photocell.photocellRead(18)
+ 	if(readTemperature):
+ 		logger.debug("Reading Temperature")
+ 		temperature = float("{0:.1f}".format(reading.read_temperature()))
+ 		logger.info("Temperature Reading is: %s", format(temperature))
+ 	else:
+ 		 logger.debug("DISABLED: TEMPERATURE read, check the configuration file") 	
 
- 	logger.info("Temperature Reading is: %s", format(temperature))
- 	logger.info("Humidity Reading is: %s", format(humidity))
- 	logger.info("Light Reading is: %s", format(light))
+
+ 	if(readHumidity):
+ 		logger.debug("Reading Humidity Sensor")
+ 		humidity = float("{0:.1f}".format(reading.read_humidity()))
+ 		logger.info("Humidity Reading is: %s", format(humidity))
+ 	else:
+ 		 logger.debug("DISABLED: HUMIDITY read, check the configuration file") 	
+
+
+ 	if(readLight):
+ 		logger.debug("Reading LIGHT Sensor") 		
+ 		light = float("{0:.0f}".format(photocell.photocellRead(18)))
+ 	 	logger.info("Light Reading is: %s", format(light))
+ 	else:
+ 		 logger.debug("DISABLED: LIGHT read, check the configuration file") 	
+
+
+
+
 
  	logger.debug("MQTT: Initializing")
  	mqttc=mqtt.Client()
@@ -88,9 +122,17 @@ def readAndSubmitSensorValues():
  	logger.debug("MQTT: CONNECTED")
 
 	# SEND MQTT command
- 	(result,mid)=mqttc.publish("home-assistant/livingroom/temperature",temperature,2)
- 	(result,mid)=mqttc.publish("home-assistant/livingroom/humidity",humidity,2)
- 	(result,mid)=mqttc.publish("home-assistant/livingroom/light",light,2)
+	if(readTemperature):
+		messageTopic = MsgTopicAbbreviation+"/"+SensorLocation + "/" + "temperature"
+		(result,mid)=mqttc.publish(messageTopic,temperature,2)
+
+	if(readHumidity):
+		messageTopic = MsgTopicAbbreviation+"/"+SensorLocation + "/" + "humidity"	
+ 		(result,mid)=mqttc.publish(messageTopic,humidity,2)
+ 	
+ 	if(readLight):
+ 		messageTopic = MsgTopicAbbreviation+"/"+SensorLocation + "/" + "light"
+ 		(result,mid)=mqttc.publish(messageTopic,light,2)
  
  	logger.debug("MQTT: PUNLISHED ALL 3" )
 
@@ -102,8 +144,8 @@ def readAndSubmitSensorValues():
  	#Get updated polling interval
  	polling_Interval = pollingInterval;
  	next_call_Sensors = next_call_Sensors + int(polling_Interval)
- 	printTime = datetime.datetime.now() + datetime.timedelta(seconds=polling_Interval)
-	logger.info("Next run is %s",printTime )
+ 	#printTime = datetime.datetime.now() + datetime.timedelta(seconds=polling_Interval)
+	logger.info("Next run is %s", datetime.datetime.now() + datetime.timedelta(seconds=polling_Interval) )
  	threading.Timer( next_call_Sensors - time.time(), readAndSubmitSensorValues ).start()
 
 
@@ -125,7 +167,6 @@ def main (argv):
 	wifiMon.setUp(config)   # Setting up the wifi Monitor
     
 	startup()
-
 
 if __name__ == '__main__':
 	main(sys.argv) # Executing the main funciton

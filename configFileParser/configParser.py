@@ -2,16 +2,10 @@
 import sys
 import ConfigParser
 
-
-
-
 def readValueHere(config):
     myConfig = config
     print 'inside readValueHere()'
     print config.sections()
-
-
-
 
 print sys.version_info
 
@@ -29,5 +23,3 @@ for key in config.items('dotStar'): print(key)
 print 'starting function'
 
 readValueHere(config)
-
-

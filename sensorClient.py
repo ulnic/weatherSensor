@@ -6,8 +6,7 @@ from envSensors import photocell_lib as photocell   #MOCK CLASS ADDED HERE
 from envSensors.tempHumidity_lib import HTU21D   #MOCK CLASS ADDED HERE
 import wifiChecker.wifiMon as wifiMon
 import requests
-import logging
-import logging.config
+import logging, logging.config
 import ConfigParser
 import paho.mqtt.client as mqtt
 
@@ -81,17 +80,24 @@ def readAndSubmitSensorValues():
  	logger.info("Humidity Reading is: %s", format(humidity))
  	logger.info("Light Reading is: %s", format(light))
 
+ 	logger.debug("MQTT: Initializing")
  	mqttc=mqtt.Client()
  	mqttc.connect(mqtt_host,1883,60)
  	mqttc.loop_start()
  	
+ 	logger.debug("MQTT: CONNECTED")
+
 	# SEND MQTT command
  	(result,mid)=mqttc.publish("home-assistant/livingroom/temperature",temperature,2)
  	(result,mid)=mqttc.publish("home-assistant/livingroom/humidity",humidity,2)
  	(result,mid)=mqttc.publish("home-assistant/livingroom/light",light,2)
- 	
+ 
+ 	logger.debug("MQTT: PUNLISHED ALL 3" )
+
  	mqttc.loop_stop()
  	mqttc.disconnect()
+
+ 	logger.debug("MQTT: CONNECTED")
 
  	#Get updated polling interval
  	polling_Interval = pollingInterval;

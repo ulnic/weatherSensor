@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-import os, subprocess, sys, time
-import logging
+import os, subprocess, sys, time, logging
 import ConfigParser
 
 ##

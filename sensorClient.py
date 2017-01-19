@@ -18,11 +18,11 @@ mqtt_host = "127.0.0.1"
 config = '' 
 MsgTopicAbbreviation = 'weatherSensor'
 SensorLocation = 'Room1'
-readTemperature=TRUE
+readTemperature=True
 messageTopicTemperature = ''
-readHumidity=TRUE
+readHumidity=True
 messageTopicHumidity = ''
-readLight=TRUE
+readLight=True
 messageTopicLight = ''
 
 
@@ -46,7 +46,7 @@ for pid in out.splitlines():
                 os.kill(int(pid), signal.SIGKILL)
                 print "KILLED old sensorClient.py record [" + pid + "]"
             except:
-                print "err"
+                print "err - could not kill previous running instance"
 
 
 #Define the Error Log Details

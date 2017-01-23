@@ -1,4 +1,4 @@
-# weatherSensor_rpi
+# weatherSensor
 Temperature, Weather and Light Reader for a Raspberry pi (any model)
 
 

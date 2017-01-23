@@ -1,20 +1,27 @@
 #!/usr/bin/python
 
-import sys, datetime, threading, time, requests
-import os, signal, subprocess # This is used when exiting the program
-from envSensors import photocell_lib as photocell 
-from envSensors.tempHumidity_lib import HTU21D 
-import wifiChecker.wifiMon as wifiMon
+import sys, datetime, threading, time
+#import os, signal, subprocess # This is used when exiting the program
+#from envSensors import photocell_lib as photocell 
+from envSensors import photocell_lib_MOCK as photocell 
+#from envSensors.tempHumidity_lib import HTU21D 
+from envSensors.tempHumidity_lib_MOCK import HTU21D 
+from wifiChecker.wifiMon import wifiMon as WifiMon
+#import wifiChecker.wifiMon as WifiMon
 import logging, logging.config
 import ConfigParser
 import paho.mqtt.client as mqtt
+from singletonExecution import singletonExecution
+#from wifiMon import *
 
 next_call_Sensors = time.time()
 next_call_Wifi = time.time()
 reading = HTU21D()
 pollingInterval = 30
 wifiCheckFrequency = 60
+wifiMonHostname = "8.8.8.8"
 mqtt_host = "127.0.0.1"
+mqtt_port = 1883
 config = '' 
 MsgTopicAbbreviation = 'weatherSensor'
 SensorLocation = 'Room1'
@@ -26,43 +33,25 @@ readLight=True
 messageTopicLight = ''
 
 
-###
-### Below code KILLS any currently running sensorClient.py process
-### EXCLUDING itself
-###
-
-myPid = os.getpid()
-print "My PID= [" + str(myPid) + "]"
-
-
-cmd = "ps -ef | grep 'python sensorClient.py' | grep -v grep | awk '{print $2}'"
-p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
-out = p.communicate() [0]
-for pid in out.splitlines():
-    if myPid != pid:
-        #print pid
-        if int(pid) != int(myPid):
-            try:
-                os.kill(int(pid), signal.SIGKILL)
-                print "KILLED old sensorClient.py record [" + pid + "]"
-            except:
-                print "err - could not kill previous running instance"
 
 
 #Define the Error Log Details
 logging.config.fileConfig('logging.ini')
 logger = logging.getLogger('sensorLogger')
 
+#Run a check and close any previously running instances of the same application
+singletonExecution.ensureOnlyOneInstance()
 
 
 def setUpConfiguration():
-	global config, mqtt_host, wifiCheckFrequency, pollingInterval, readTemperature, readHumidity, readLight
-	global SensorLocation, MsgTopicAbbreviation
+	global config, mqtt_host, mqtt_port, wifiCheckFrequency, pollingInterval, readTemperature, readHumidity, readLight
+	global SensorLocation, MsgTopicAbbreviation, wifiMonHostname
 
 	config = ConfigParser.ConfigParser()
 	try:
 		config.read('configuration.ini')
 		mqtt_host = config.get('MQTT', 'mqtt_host')
+		mqtt_port = int(config.get('MQTT', 'mqtt_port'))
 		pollingInterval = int(config.get('DEFAULT', 'pollingInterval'))
 
 		wifiCheckFrequency =  int(config.get('DEFAULT', 'wifiCheckFrequency'))
@@ -73,6 +62,8 @@ def setUpConfiguration():
 		SensorLocation = config.get('SENSOR', 'SensorLocation')
 
 		MsgTopicAbbreviation = config.get('DEFAULT', 'MsgTopicAbbreviation')
+
+		wifiMonHostname = config.get('wifiMon', 'wifiMonHostname')
 
 		logger.debug('wifiCheckFrequency is: %s ', wifiCheckFrequency )
 	except Exception as e:
@@ -112,11 +103,9 @@ def readAndSubmitSensorValues():
 
 
 
-
-
  	logger.debug("MQTT: Initializing")
  	mqttc=mqtt.Client()
- 	mqttc.connect(mqtt_host,1883,60)
+ 	mqttc.connect(mqtt_host,mqtt_port,60)
  	mqttc.loop_start()
  	
  	logger.debug("MQTT: CONNECTED")
@@ -150,21 +139,21 @@ def readAndSubmitSensorValues():
 
 
 def monitorWifi():
-	global next_call_Wifi
-	wifiMon.keepConnectionAlive()         # Verify the wifi is still alive. If lost, a reconnection will occur within the method. 
-	#Get updated polling interval
- 	next_call_Wifi = next_call_Wifi+wifiCheckFrequency # Add time defined inside the configuration.ini (in seconds)
- 	threading.Timer( next_call_Wifi - time.time(), monitorWifi ).start()
+	global wifiCheckFrequency
+	wifiMonitor = WifiMon(wifiMonHostname)
+	t = threading.Thread(name='wifiMonitor', target=wifiMonitor.keepWifiAlive, args=(wifiCheckFrequency,))
+	t.start()
+
 
 # Main method
 def main (argv):
 	print 'CTRL+C to break and exit'
 	logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
-	global config
+	global config, wifiMon
 
-	# Setup internal configurations reader
-	setUpConfiguration()
-	wifiMon.setUp(config)   # Setting up the wifi Monitor
+	setUpConfiguration()	# Setup internal configurations reader
+	#wifiMon.setupConfiguration(config)   # Setting up the wifi Monitor
+	#wifiMon = wifiMon(config)
     
 	startup()
 

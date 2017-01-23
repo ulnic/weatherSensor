@@ -12,9 +12,9 @@ class HTU21D(object):
    
    def read_temperature(self):
       print '*** MOCK TEMPERATURE READING MOCK ***'
-      return 23.13468643
+      return 22.2
 
          
    def read_humidity(self):
       print '*** MOCK HUMIDITY READING MOCK ***'
-      return 60.34527492749342
+      return 55.5

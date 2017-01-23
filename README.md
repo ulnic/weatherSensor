@@ -27,6 +27,8 @@ and add/uncomment:
 	dtparam=i2c_arm=on
 
 
+pip3 install paho-mqtt
+
 update rpi hostname
 
 add cronjon

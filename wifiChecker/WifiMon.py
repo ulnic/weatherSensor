@@ -54,7 +54,7 @@ class WifiMon(threading.Thread):
         # If the resetting of the WLAN does not work, we need to reset the Pi.
 
         #ping_ret = subprocess.call(['ping -c 2 -w 1 -q 192.168.0.200 |grep "1 received" > /dev/null 2> /dev/null'], shell=True)
-        ping_ret = subprocess.call(['ping -c 1 -q 192.168.0.200 | grep "1 packets received" > /dev/null 2> /dev/null'], shell=True)
+        ping_ret = subprocess.call(['ping -c 1 -q 192.168.0.200 | grep "1 received" > /dev/null 2> /dev/null'], shell=True)
 
         if ping_ret:
             # we lost the WLAN connection.

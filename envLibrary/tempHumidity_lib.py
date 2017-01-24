@@ -34,8 +34,8 @@ class i2c(object):
 
 class HTU21D(object):
    def __init__(self):
-      self.dev = i2c(HTU21D_ADDR, 1) #HTU21D 0x40, bus 1
-      self.dev.write(CMD_SOFT_RESET) #soft reset
+      self.dev = i2c(HTU21D_ADDR, 1)  # HTU21D 0x40, bus 1
+      self.dev.write(CMD_SOFT_RESET)  # soft reset
       time.sleep(.1)
 
    def ctemp(self, sensorTemp):
@@ -66,7 +66,7 @@ class HTU21D(object):
          return False
    
    def read_temperature(self):
-      self.dev.write(CMD_READ_TEMP_NOHOLD) #measure temp
+      self.dev.write(CMD_READ_TEMP_NOHOLD)  # measure temp
       time.sleep(.1)
 
       data = self.dev.read(3)
@@ -79,7 +79,7 @@ class HTU21D(object):
          return -255
          
    def read_humidity(self):
-      self.dev.write(CMD_READ_HUM_NOHOLD) #measure humidity
+      self.dev.write(CMD_READ_HUM_NOHOLD)  # measure humidity
       time.sleep(.1)
 
       data = self.dev.read(3)

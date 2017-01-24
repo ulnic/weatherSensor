@@ -44,6 +44,7 @@ class Sensor(object):
                 logger.info("Humidity Reading is: %s", format(self.sensorValue))
 
             elif self.type == SensorType.LIGHT:
+                # TODO: Add photocell pin to config file
                 self.sensorValue = float("{0:.0f}".format(self.photoCellReader.photocellRead(18)))
                 logger.info("Light Reading is: %s", format(self.sensorValue))
         else:

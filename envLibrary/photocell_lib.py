@@ -4,10 +4,10 @@
 # Must be used with GPIO 0.3.1a or later - earlier verions
 # are not fast enough!
 
-import RPi.GPIO as GPIO, time, os
+import RPi.GPIO as GPIO, time
 import math
 
-DEBUG = 1
+#DEBUG = 1
 GPIO.setmode(GPIO.BCM)
 
 def photocellRead (RCpin):
@@ -31,24 +31,22 @@ def convertToLinear(p):
         raise ValueError
 
 
-def convertValueTo100Base(value):
-    print 'original value'
-    print value
-    returnValue = 0;
-
-    if value >= 20000:
-        returnValue = 0
-    elif value>=15000:
-        returnValue = 10
-    elif value>=8000:
-        returnValue=20
-    elif value >=3000:
-        returnValue=40
-    elif value>=200:
-        returnValue=60
-    elif value>=70:
-        returnValue=80
-    else:
-        returnValue=100
-
-    return returnValue 
+# def convertValueTo100Base(value):
+#     returnValue = 0
+#
+#     if value >= 20000:
+#         returnValue = 0
+#     elif value >= 15000:
+#         returnValue = 10
+#     elif value >= 8000:
+#         returnValue = 20
+#     elif value >= 3000:
+#         returnValue = 40
+#     elif value >= 200:
+#         returnValue = 60
+#     elif value >= 70:
+#         returnValue = 80
+#     else:
+#         returnValue = 100
+#
+#     return returnValue

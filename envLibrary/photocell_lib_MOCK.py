@@ -4,7 +4,7 @@
 # Must be used with GPIO 0.3.1a or later - earlier verions
 # are not fast enough!
 
-DEBUG = 1
+#DEBUG = 1
 
 def photocellRead (RCpin):
     print '*** MOCK PHOTOCELL READ MOCK ***'

@@ -12,12 +12,12 @@ class SensorHandler(object):
     def __init__(self,
                  read_temperature, temperature_message_topic,
                  read_humidity, humidity_message_topic,
-                 read_light, light_message_topic,
+                 read_light, light_message_topic, lightGpioPin,
                  mqtt_host, mqtt_port,
                  use_mock_sensor):
         self.temperature = Sensor(SensorType.TEMPERATURE, read_temperature, temperature_message_topic, use_mock_sensor)
         self.humidity = Sensor(SensorType.HUMIDITY, read_humidity, humidity_message_topic, use_mock_sensor)
-        self.light = Sensor(SensorType.LIGHT, read_light, light_message_topic, use_mock_sensor)
+        self.light = Sensor(SensorType.LIGHT, read_light, light_message_topic, use_mock_sensor, lightGpioPin)
         self.mqttHost = mqtt_host
         self.mqttPort = mqtt_port
 

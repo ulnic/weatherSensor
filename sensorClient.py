@@ -21,6 +21,7 @@ def update_sensor():
     sh = SensorHandler(ConfigurationReader.readTemperature, ConfigurationReader.temperatureMessageTopic,
                        ConfigurationReader.readHumidity, ConfigurationReader.humidityMessageTopic,
                        ConfigurationReader.readLight, ConfigurationReader.lightMessageTopic,
+                       ConfigurationReader.lightGpioPin,
                        ConfigurationReader.mqtt_host, ConfigurationReader.mqtt_port,
                        ConfigurationReader.useMockSensor)
     t = threading.Thread(name='sensorReaderThread',

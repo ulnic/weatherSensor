@@ -24,6 +24,7 @@ class ConfigurationReader(object):
 
     readLight = True
     lightMessageTopic = ''
+    lightGpioPin = -1
 
     def __init__(self):
         logger.debug('ConfigurationReader initialising ')
@@ -54,6 +55,7 @@ class ConfigurationReader(object):
             # Light Values
             ConfigurationReader.readLight = config.getboolean('SENSOR', 'readLight')
             ConfigurationReader.lightMessageTopic = config.get('SENSOR', 'lightMessageTopic')
+            ConfigurationReader.lightGpioPin = int(config.get('SENSOR', 'lightGpioPin'))
 
             # WIFI Checking Values
             ConfigurationReader.wifiMonHostname = config.get('WIFI', 'wifiMonHostname')

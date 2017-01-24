@@ -1,21 +1,18 @@
 #!/usr/bin/python
 import logging
 from SensorEnum import SensorType
-# from envLibrary.tempHumidity_lib import HTU21D
-# from envLibrary.tempHumidity_lib_MOCK import HTU21D as HTU21D_MOCK
-# from envLibrary import photocell_lib as photocell
-# from envLibrary import photocell_lib_MOCK as photocell_MOCK
 
 logger = logging.getLogger('sensorLogger')
 
 
 class Sensor(object):
-    def __init__(self, sensor_type, read_sensor, sensor_message_topic, use_mock_sensor):
+    def __init__(self, sensor_type, read_sensor, sensor_message_topic, use_mock_sensor, gpiopin=-1):
         self.type = sensor_type
         self.readSensorToggle = read_sensor
         self.messageTopic = sensor_message_topic
         self.sensorValue = 0
         self.useMockSensor = use_mock_sensor
+        self.gpioPin = gpiopin
 
         if use_mock_sensor:
             logger.warning("MOCK Readers enabled, please update the configuration file")
@@ -28,7 +25,6 @@ class Sensor(object):
 
         self.readSensor = HTU21D()
         self.photoCellReader = photocell
-
 
     def read_sensor(self):
         logger.debug("read Toggle set to %s ", self.readSensorToggle)
@@ -44,8 +40,7 @@ class Sensor(object):
                 logger.info("Humidity Reading is: %s", format(self.sensorValue))
 
             elif self.type == SensorType.LIGHT:
-                # TODO: Add photocell pin to config file
-                self.sensorValue = float("{0:.0f}".format(self.photoCellReader.photocellRead(18)))
+                self.sensorValue = float("{0:.0f}".format(self.photoCellReader.photocellRead(self.gpioPin)))
                 logger.info("Light Reading is: %s", format(self.sensorValue))
         else:
             logger.debug("DISABLED - check the configuration file")

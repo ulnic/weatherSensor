@@ -6,11 +6,12 @@ logger = logging.getLogger('sensorLogger')
 
 
 class Sensor(object):
-    def __init__(self, sensor_type, read_sensor, sensor_message_topic, use_mock_sensor, gpiopin=-1):
+    def __init__(self, sensor_type, read_sensor, sensor_message_topic, calibration_value, use_mock_sensor, gpiopin=-1):
         self.type = sensor_type
         self.readSensorToggle = read_sensor
         self.messageTopic = sensor_message_topic
         self.sensorValue = 0
+        self.calibrationValue = calibration_value
         self.useMockSensor = use_mock_sensor
         self.gpioPin = gpiopin
 
@@ -32,15 +33,15 @@ class Sensor(object):
         if self.readSensorToggle:
             logger.debug("Reading Sensor")
             if self.type == SensorType.TEMPERATURE:
-                self.sensorValue = float("{0:.1f}".format(self.readSensor.read_temperature()))
+                self.sensorValue = float("{0:.1f}".format(self.readSensor.read_temperature() + self.calibrationValue))
                 logger.info("Temperature Reading is: %s", format(self.sensorValue))
 
             elif self.type == SensorType.HUMIDITY:
-                self.sensorValue = float("{0:.1f}".format(self.readSensor.read_humidity()))
+                self.sensorValue = float("{0:.1f}".format(self.readSensor.read_humidity()  + self.calibrationValue))
                 logger.info("Humidity Reading is: %s", format(self.sensorValue))
 
             elif self.type == SensorType.LIGHT:
-                self.sensorValue = float("{0:.0f}".format(self.photoCellReader.photocellRead(self.gpioPin)))
+                self.sensorValue = float("{0:.0f}".format(self.photoCellReader.photocellRead(self.gpioPin) + self.calibrationValue))
                 logger.info("Light Reading is: %s", format(self.sensorValue))
         else:
             logger.debug("DISABLED - check the configuration file")

@@ -1,21 +1,18 @@
-# weatherSensor
+#weatherSensor
 Temperature, Weather and Light Reader for a Raspberry pi (any model)
 
 
 
-#INSTALL SCRIPT DOES...
+## INSTALL SCRIPT DOES...
  TODO: Update description below and test
 
 
 --ITEMS on Raspberry PI ZERO to be installed
 
 
-sudo apt-get install python-pip
-sudo apt-get install git
-sudo apt-get install python-smbus
-sudo apt-get install i2c-tools
-sudo apt-get install python-dev 
-sudo apt-get install python-rpi.gpio
+
+sudo apt-get --assume-yes install python-pip git python-smbus i2c-tools python-dev python-rpi.gpio
+
 
 ENABLE I2C:
 sudo echo i2c-bcm2708 >> /etc/modules
@@ -27,9 +24,8 @@ and add/uncomment:
 	dtparam=i2c_arm=on
 
 
-pip3 install paho-mqtt
+pip install -r requirements.txt
 
 update rpi hostname
 
-add cronjon
-sudo crontab -e......
+add rc.local

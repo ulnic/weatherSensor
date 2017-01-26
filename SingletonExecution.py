@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import os
 import signal
 import subprocess  # This is used when exiting the program

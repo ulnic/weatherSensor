@@ -19,9 +19,11 @@ SingletonExecution.ensure_only_one_instance()
 
 def update_sensor():
     sh = SensorHandler(ConfigurationReader.readTemperature, ConfigurationReader.temperatureMessageTopic,
+                       ConfigurationReader.temperatureCalibration,
                        ConfigurationReader.readHumidity, ConfigurationReader.humidityMessageTopic,
+                       ConfigurationReader.humidityCalibration,
                        ConfigurationReader.readLight, ConfigurationReader.lightMessageTopic,
-                       ConfigurationReader.lightGpioPin,
+                       ConfigurationReader.lightCalibration, ConfigurationReader.lightGpioPin,
                        ConfigurationReader.mqtt_host, ConfigurationReader.mqtt_port,
                        ConfigurationReader.useMockSensor)
     t = threading.Thread(name='sensorReaderThread',
@@ -55,6 +57,7 @@ def main(argv):
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
         logger.info(" *** RECEIVED TERMINATION AND TERMINATING *** ")
+        SensorHandler.threadExitFlag = 1
         sys.exit()
 
 

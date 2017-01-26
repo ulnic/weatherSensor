@@ -10,6 +10,7 @@ WLAN_check_flg = False
 
 class WifiMon(threading.Thread):
 
+    threadExitFlag = 0
     WLAN_check_flg = False
 
     def __init__(self, wifi_ping_hostname="8.8.8.8"):
@@ -41,7 +42,7 @@ class WifiMon(threading.Thread):
         logger.debug('wifiMon.keepConnectionAlive END')
 
     def keep_wifi_alive(self, wifi_check_frequency):
-        while True:
+        while not WifiMon.threadExitFlag:
             # self.keep_connection_alive()
             self.wlan_check()
             logger.info("Sleeping WIFI thread for [%s] seconds ", wifi_check_frequency)
@@ -61,7 +62,6 @@ class WifiMon(threading.Thread):
             # did we try a recovery already?
             if WifiMon.WLAN_check_flg:
                 # we have a serious problem and need to reboot the Pi to recover the WLAN connection
-                # subprocess.call(['logger "WLAN Down, Pi is forcing a reboot"'], shell=True)
                 logger.critical(' *** Fatal ERROR in wifi checker *** ')
                 logger.critical(' *** After 1 retry, the wifi is NOT available *** ')
                 logger.critical(' *** Attempting SUDO REBOOT on Raspberry Pi *** ')
@@ -72,7 +72,6 @@ class WifiMon(threading.Thread):
                 logger.critical("PING to [%s] is LOST! ", self.wifiMonHostname)
                 logger.critical('Fatal error in wifiMon!')
                 logger.critical('ATTEMPTING to turn wifi OFF and ON again!')
-                # subprocess.call(['logger "WLAN is down, Pi is resetting WLAN connection"'], shell=True)
                 WifiMon.WLAN_check_flg = True  # try to recover
                 subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
         else:

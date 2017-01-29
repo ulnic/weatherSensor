@@ -1,12 +1,14 @@
 #weatherSensor
 Temperature, Weather and Light Reader for a Raspberry pi (any model)
 
-
-
 ## Setup the Raspberry pi with
 
 ### Enable SSH & I2C
-type _sudo raspi-config_ Then select Advanced Options and enable SSH and I2C
+type 
+```
+sudo raspi-config
+```
+ Then select Advanced Options and enable SSH and I2C
 
 alternative via:
 
@@ -24,10 +26,12 @@ and add/uncomment:
 
 - _sudo nano /etc/wpa_supplicant/wpa_supplicant.conf_
 - Add or edit 
-_network={
+```
+network={
 ssid="SSID"
 psk="WIFI PASSWORD"
-}_
+}
+```
 
 ### Install git
 _sudo apt-get install git_
@@ -46,8 +50,15 @@ _sudo git clone https://github.com/ulnic/weatherSensor.git_
 
 1. pip install -r requirements.txt
 2. Add rc.local
+ Add below 2 lines just before the _exit 0_
+ ``` 
+# Execute weather sensor automatically at start up
+sh /home/pi/weatherSensor/reboot_script_weatherSensor.sh 
+```
 
 ## Optional
 
 # Update the raspberry pi hostname
 _sudo raspi-config_ and here you can set the hostname of the raspberry pi
+
+https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet

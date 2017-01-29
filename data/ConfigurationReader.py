@@ -35,7 +35,7 @@ class ConfigurationReader(object):
         logger.info('Reading  configurations from file')
         config = ConfigParser.ConfigParser()
         try:
-            config.read('configuration.ini')
+            config.read('config/configuration.ini')
 
             logger.debug(config._sections)
 

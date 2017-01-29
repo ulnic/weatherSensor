@@ -5,7 +5,7 @@ import subprocess  # This is used when exiting the program
 
 
 #
-#  Below code KILLS any currently running sensorClient.py process
+#  Below code KILLS any currently running weatherSensor.py process
 #  EXCLUDING itself
 #
 class SingletonExecution(object):
@@ -16,7 +16,7 @@ class SingletonExecution(object):
         my_pid = os.getpid()
         print "My PID= [" + str(my_pid) + "]"
 
-        cmd = "ps -ef | grep 'python sensorClient.py' | grep -v grep | awk '{print $2}'"
+        cmd = "ps -ef | grep 'python weatherSensor.py' | grep -v grep | awk '{print $2}'"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         out = p.communicate()[0]
         for pid in out.splitlines():
@@ -25,6 +25,6 @@ class SingletonExecution(object):
                 if int(pid) != int(my_pid):
                     try:
                         os.kill(int(pid), signal.SIGKILL)
-                        print "KILLED old sensorClient.py record [" + pid + "]"
+                        print "KILLED old weatherSensor.py record [" + pid + "]"
                     except:
                         print "err - could not kill previous running instance [" + pid + "]"

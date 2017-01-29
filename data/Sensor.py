@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import logging
-from SensorEnum import SensorType
+
+from data.SensorEnum import SensorType
 
 logger = logging.getLogger('sensorLogger')
 

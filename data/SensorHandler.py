@@ -1,9 +1,10 @@
 #!/usr/bin/python
-import time
 import logging
-from Sensor import Sensor
-from SensorEnum import SensorType
+import time
 import paho.mqtt.client as mqtt
+
+from data.Sensor import Sensor
+from data.SensorEnum import SensorType
 
 logger = logging.getLogger('sensorLogger')
 
@@ -14,7 +15,6 @@ as well as handles the MQTT publishing.
 
 
 class SensorHandler(object):
-
     threadExitFlag = 0
 
     def __init__(self,

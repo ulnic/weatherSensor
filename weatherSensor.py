@@ -27,7 +27,9 @@ def update_sensor():
                            ConfigurationReader.readLight, ConfigurationReader.lightMessageTopic,
                            ConfigurationReader.lightCalibration, ConfigurationReader.lightGpioPin,
                            ConfigurationReader.mqtt_host, ConfigurationReader.mqtt_port,
-                           ConfigurationReader.useMockSensor)
+                           ConfigurationReader.useMockSensor,
+                           ConfigurationReader.readLocalCPUTemp, ConfigurationReader.localCPUMessageTopic,
+                           ConfigurationReader.readIPAddress, ConfigurationReader.localIPMessageTopic)
         t = threading.Thread(name='sensorReaderThread',
                              target=sh.sensor_continuous_reader,
                              args=(ConfigurationReader.polling_interval,))
@@ -38,6 +40,10 @@ def update_sensor():
 
 
 def monitor_wifi():
+    """
+    Initiates a thread which will own the execution of the wifi checking and keep alive
+    :return:
+    """
     wifi_monitor = WifiMon(ConfigurationReader.wifiMonHostname)
     t = threading.Thread(name='wifiMonitorThread',
                          target=wifi_monitor.keep_wifi_alive,

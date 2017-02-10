@@ -29,6 +29,12 @@ class ConfigurationReader(object):
     lightCalibration = 0.0
     lightGpioPin = -1
 
+    readLocalCPUTemp = True
+    localCPUMessageTopic = ''
+
+    readIPAddress = True
+    localIPMessageTopic = ''
+
     def __init__(self):
         logger.debug('ConfigurationReader initialising ')
 
@@ -62,6 +68,14 @@ class ConfigurationReader(object):
             ConfigurationReader.lightMessageTopic = config.get('SENSOR', 'lightMessageTopic')
             ConfigurationReader.lightCalibration = config.getfloat('SENSOR', 'lightCalibration')
             ConfigurationReader.lightGpioPin = int(config.get('SENSOR', 'lightGpioPin'))
+
+            # CPU Temperature Values
+            ConfigurationReader.readLocalCPUTemp = config.getboolean('SENSOR', 'readLocalCPUTemp')
+            ConfigurationReader.localCPUMessageTopic = config.get('SENSOR', 'localCPUMessageTopic')
+
+            # Local IP Address
+            ConfigurationReader.readIPAddress = config.getboolean('SENSOR', 'readIPAddress')
+            ConfigurationReader.localIPMessageTopic = config.get('SENSOR', 'localIPMessageTopic')
 
             # WIFI Checking Values
             ConfigurationReader.wifiMonHostname = config.get('WIFI', 'wifiMonHostname')

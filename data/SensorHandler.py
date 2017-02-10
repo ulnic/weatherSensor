@@ -2,7 +2,7 @@
 import logging
 import time
 import paho.mqtt.client as mqtt
-
+import threading
 from data.Sensor import Sensor
 from data.SensorEnum import SensorType
 
@@ -14,7 +14,7 @@ as well as handles the MQTT publishing.
 """
 
 
-class SensorHandler(object):
+class SensorHandler(threading.Thread):
     threadExitFlag = 0
 
     def __init__(self,
@@ -22,46 +22,75 @@ class SensorHandler(object):
                  read_humidity, humidity_message_topic, humidity_calibration,
                  read_light, light_message_topic, light_calibration, light_gpio_pin,
                  mqtt_host, mqtt_port,
-                 use_mock_sensor):
+                 use_mock_sensor,
+                 read_cpu, cpu_message_topic,
+                 read_ip, ip_message_topic):
+        threading.Thread.__init__(self)
+
         self.temperature = Sensor(SensorType.TEMPERATURE,
                                   read_temperature,
                                   temperature_message_topic,
                                   temperature_calibration,
                                   use_mock_sensor)
+
         self.humidity = Sensor(SensorType.HUMIDITY,
                                read_humidity,
                                humidity_message_topic,
                                humidity_calibration,
                                use_mock_sensor)
+
         self.light = Sensor(SensorType.LIGHT,
                             read_light,
                             light_message_topic,
                             light_calibration,
                             use_mock_sensor,
                             light_gpio_pin)
+
+        self.cpu = Sensor(SensorType.CPU,
+                          read_cpu,
+                          cpu_message_topic)
+
+        self.ipAdr = Sensor(SensorType.LOCAL_IP,
+                            read_ip,
+                            ip_message_topic)
+
         self.mqttHost = mqtt_host
         self.mqttPort = mqtt_port
 
+    @staticmethod
+    def on_connect(client, userdata, flags, rc):
+        logger.info("MQTT Connected")
+
+    def on_disconnect(client, userdata, flags, rc):
+        logger.info("MQTT DISCONNECTED")
+
     def read_publish_sensors(self):
 
-        s = [self.temperature, self.humidity, self.light]
+        s = [self.temperature, self.humidity, self.light, self.cpu, self.ipAdr]
 
         logger.debug("MQTT: Initializing")
-        mqttc = mqtt.Client()
-        mqttc.connect(self.mqttHost, self.mqttPort, 60)
-        mqttc.loop_start()
 
-        logger.debug("MQTT: CONNECTED")
+        try:
+            mqttc = mqtt.Client()
+            mqttc.on_connect = self.on_connect
+            mqttc.on_disconnect = self.on_disconnect
+            mqttc.connect(self.mqttHost, self.mqttPort, 500)
+            mqttc.loop_start()
 
-        for sensor in s:
-            if sensor.readSensorToggle:
-                sensor.read_sensor()
-                mqttc.publish(sensor.messageTopic, sensor.sensorValue, 2)
+            logger.debug("MQTT: CONNECTED")
 
-        logger.debug("MQTT: PUBLISHED")
+            for sensor in s:
+                if sensor.readSensorToggle:
+                    sensor.read_sensor()
+                    mqttc.publish(sensor.messageTopic, sensor.sensorValue, 0)
+                    logger.debug("Finished processing [%s]", sensor.type)
 
-        mqttc.loop_stop()
-        mqttc.disconnect()
+            logger.debug("MQTT: PUBLISHED")
+
+            mqttc.loop_stop()
+            mqttc.disconnect()
+        except Exception as e:
+            logger.error("MQTT: Error with %s", e.__str__())
 
         logger.debug("MQTT: DIS-CONNECTED")
 

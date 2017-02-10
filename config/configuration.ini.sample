@@ -1,6 +1,6 @@
 [APP]
 pollingInterval = 5
-useMockSensor = True
+useMockSensor = False
 
 [MQTT]
 mqtt_host = 192.168.0.200
@@ -8,24 +8,23 @@ mqtt_port = 1883
 
 [SENSOR]
 readTemperature = True
-temperatureMessageTopic = weatherSensor/test/temperature
+temperatureMessageTopic = weatherSensor/livingroom/temperature
 temperatureCalibration = -3.0
 
 readHumidity = True
-humidityMessageTopic = weatherSensor/test/humidity
+humidityMessageTopic = weatherSensor/livingroom/humidity
 humidityCalibration = 0.0
 
 readLight = True
-lightMessageTopic = weatherSensor/test/light
+lightMessageTopic = weatherSensor/livingroom/light
 lightCalibration = 0.0
 lightGpioPin = 18
 
 readLocalCPUTemp = True
-localCPUMessageTopic = weatherSensor/test/cputemp
+localCPUMessageTopic = weatherSensor/livingroom/cputemp
 
 readIPAddress = True
-localIPMessageTopic = weatherSensor/test/ip
-
+localIPMessageTopic = weatherSensor/livingroom/ip
 
 [LOGGER]
 logFile = logging.ini

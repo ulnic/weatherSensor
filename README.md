@@ -56,6 +56,9 @@ _sudo git clone https://github.com/ulnic/weatherSensor.git_
 sh /home/pi/weatherSensor/reboot_script_weatherSensor.sh 
 ```
 
+https://github.com/eclipse/paho.mqtt.python
+
+
 ## Optional
 
 # Update the raspberry pi hostname

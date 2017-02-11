@@ -55,7 +55,9 @@ def monitor_wifi():
 # Main method
 def main(argv):
     print 'CTRL+C to break and exit'
+    logger.info('*************************************************')
     logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
+    logger.info('*************************************************')
     print argv
     ConfigurationReader()  # Reads the configuration file and stores all values inside it's own class
 
@@ -66,7 +68,7 @@ def main(argv):
         while threading.active_count() > 0:
             time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
-        logger.info(" *** RECEIVED TERMINATION AND TERMINATING *** ")
+        logger.info(" ***** RECEIVED TERMINATION AND TERMINATING ***** ")
         SensorHandler.threadExitFlag = 1
         sys.exit()
 

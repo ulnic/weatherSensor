@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import logging
 import subprocess
+from subprocess import check_output
 from data.SensorEnum import SensorType
+from re import findall
 
 logger = logging.getLogger('sensorLogger')
 
@@ -48,13 +50,14 @@ class Sensor(object):
                 logger.info("Light Reading is: %s", format(self.sensorValue))
 
             elif self.type == SensorType.CPU:
-                self.sensorValue = 11.1
-                try:
-                    cpu_sensorValue = subprocess.call(['/opt/vc/bin/vcgencmd measure_temp > /dev/null 2> /dev/null'],
-                                                   shell=True)
-                    self.sensorValue = float("{0:.1f}".format(cpu_sensorValue[5:]))
-                except Exception as e:
-                    logger.warn("Could not read CPU, setting to 0")
+                self.sensorValue = self.get_cpu_temp()
+                # try:
+                #     cpu_sensorValue = subprocess.call(['/opt/vc/bin/vcgencmd measure_temp > /dev/null 2> /dev/null'],
+                #                                    shell=True)
+                #     logger.debug('/opt/vc/bin/vcgencmd measure_temp RETURNED [%s]', cpu_sensorValue)
+                #     self.sensorValue = float("{0:.1f}".format(cpu_sensorValue[5:]))
+                # except Exception as e:
+                #     logger.warn("Could not read CPU, setting to 0")
                 logger.info("CPU Temperature Reading is %s", self.sensorValue)
 
             elif self.type == SensorType.LOCAL_IP:
@@ -63,13 +66,24 @@ class Sensor(object):
                     self.sensorValue = subprocess.call(
                         ['ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1 > /dev/null 2> /dev/null'],
                         shell=True)
+                    logger.debug('ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1 RETURNED [%s]', self.sensorValue)
                     if len(self.sensorValue) == 0:
                         self.sensorValue = 'error'
 
                 except Exception as e:
-                    logger.warn("Could not read IP, setting to 1.2.3.4")
+                    logger.warn("Could not read IP, due to: %s", e.__str__())
                     self.sensorValue = 'error'
 
                 logger.info("Local IP Address is %s", format(self.sensorValue))
         else:
             logger.debug("DISABLED - check the configuration file")
+
+    def get_cpu_temp(self):
+        temp = 0
+        try:
+            temp = check_output(["vcgencmd","measure_temp"]).decode("UTF-8")
+            temp = float(findall("\d+\.\d+",temp)[0])
+        except Exception as e:
+            logger.warn("Could not read CPU, due to %s", e.__str__())
+
+        return temp

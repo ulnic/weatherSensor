@@ -8,10 +8,10 @@ logger = logging.getLogger('sensorLogger')
 class HumiditySensor(AbstractSensor):
 
     def __init__(self, _calibration_value, _use_mock_sensor, _json_key):
-        super(self.__class__, self).__init__(_json_key)
+        super(self.__class__, self).__init__(_json_key, _use_mock_sensor)
         self.calibrationValue = _calibration_value
 
-        if _use_mock_sensor:
+        if self.use_mock_sensor:
             logger.warning("MOCK Readers enabled, please update the configuration file")
             from data.envLibrary.tempHumidity_lib_MOCK import HTU21D
         else:

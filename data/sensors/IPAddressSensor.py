@@ -8,9 +8,7 @@ logger = logging.getLogger('sensorLogger')
 
 class IPAddressSensor(AbstractSensor):
     def __init__(self, _use_mock_sensor, _json_key, _interface):
-        super(self.__class__, self).__init__(_json_key)
-
-        self.use_mock_sensor = bool(_use_mock_sensor)
+        super(self.__class__, self).__init__(_json_key, _use_mock_sensor)
         self.interface = _interface
 
     def read_sensor(self):

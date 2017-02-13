@@ -11,6 +11,7 @@ from data.sensors.LightSensor import LightSensor
 from data.sensors.IPAddressSensor import IPAddressSensor
 from data.sensors.CPUSensor import CPUSensor
 from data.MQTTBroker import MQTTBroker
+from Utilities import *
 
 logger = logging.getLogger('sensorLogger')
 
@@ -26,7 +27,8 @@ class SensorHandler(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.cr = ConfigurationReader()
-        self.use_mock_sensor = bool(self.cr.get_key_in_section(Constant.CONFIG_SECTION_APP, Constant.USE_MOCK_SENSOR))
+        self.use_mock_sensor = str_to_bool(
+            self.cr.get_key_in_section(Constant.CONFIG_SECTION_APP, Constant.USE_MOCK_SENSOR))
         self.polling_interval = int(self.cr.get_key_in_section(Constant.CONFIG_SECTION_APP, Constant.POLLING_INTERVAL))
         self.mqtt = self.create_mqtt_broker()
         self.sensorList = self.create_sensors()
@@ -60,7 +62,7 @@ class SensorHandler(threading.Thread):
             _enable_sensor = False
             if Constant.ENABLE_SENSOR in keys and \
                     bool(keys[Constant.ENABLE_SENSOR]) and \
-                    keys[Constant.ENABLE_SENSOR].lower() != 'false':
+                            keys[Constant.ENABLE_SENSOR].lower() != 'false':
                 _enable_sensor = True
                 logger.debug('%s  ---  %s', sensor, _enable_sensor.__str__())
 

@@ -7,11 +7,11 @@ logger = logging.getLogger('sensorLogger')
 
 class LightSensor(AbstractSensor):
     def __init__(self, _calibration_value, _use_mock_sensor, _json_key, _gpio_pin):
-        super(self.__class__, self).__init__(_json_key)
+        super(self.__class__, self).__init__(_json_key, _use_mock_sensor)
         self.calibrationValue = _calibration_value
 
         self.gpioPin = _gpio_pin
-        if _use_mock_sensor:
+        if self.use_mock_sensor:
             logger.warning("MOCK Readers enabled, please update the configuration file")
             from data.envLibrary import photocell_lib_MOCK as photocell
         else:

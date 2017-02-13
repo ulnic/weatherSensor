@@ -22,8 +22,8 @@ class IPAddressSensor(AbstractSensor):
                 _ip_address = subprocess.check_output(cmd, shell=True)
                 _ip_address = _ip_address.rstrip('\n')
             else:
-                cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1 > /dev/null 2> /dev/null'
-                #cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f2 | grep -v "^$"'
+                cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1 | grep -v "^$"'
+            # cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f2 | grep -v "^$"'
 
                 _ip_address = subprocess.check_output(cmd, shell=True)
                 _ip_address = _ip_address.rstrip('\n')

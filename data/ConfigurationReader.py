@@ -1,86 +1,33 @@
 #!/usr/bin/python
-import ConfigParser
 import logging
+from ConfigParser import SafeConfigParser
 
 logger = logging.getLogger('sensorLogger')
 
 
 class ConfigurationReader(object):
-
-    polling_interval = 30
-    useMockSensor = False
-
-    wifiCheckFrequency = 60
-    wifiMonHostname = "8.8.8.8"
-
-    mqtt_host = "127.0.0.1"
-    mqtt_port = 1883
-
-    readTemperature = True
-    temperatureMessageTopic = ''
-    temperatureCalibration = 0.0
-
-    readHumidity = True
-    humidityMessageTopic = ''
-    humidityCalibration = 0.0
-
-    readLight = True
-    lightMessageTopic = ''
-    lightCalibration = 0.0
-    lightGpioPin = -1
-
-    readLocalCPUTemp = True
-    localCPUMessageTopic = ''
-
-    readIPAddress = True
-    localIPMessageTopic = ''
-
     def __init__(self):
         logger.debug('ConfigurationReader initialising ')
 
         logger.info('Reading  configurations from file')
-        config = ConfigParser.ConfigParser()
-        try:
-            config.read('config/configuration.ini')
 
-            logger.debug(config._sections)
+        self.parser = SafeConfigParser()
+        self.parser.read('config/configuration.ini')
 
-            # Default APPLICATION Values
-            ConfigurationReader.polling_interval = int(config.get('APP', 'pollingInterval'))
-            ConfigurationReader.useMockSensor = config.getboolean('APP', 'useMockSensor')
+    def get_key_in_section(self, _section_name, _key_name):
+        return self.parser.get(_section_name, _key_name)
 
-            # MQTT Values
-            ConfigurationReader.mqtt_host = config.get('MQTT', 'mqtt_host')
-            ConfigurationReader.mqtt_port = int(config.get('MQTT', 'mqtt_port'))
+    def get_all_section_names(self):
+        """Returns a list of config section names."""
+        return [m for m in self.parser.sections()]
 
-            # Temperature Values
-            ConfigurationReader.readTemperature = config.getboolean('SENSOR', 'readTemperature')
-            ConfigurationReader.temperatureMessageTopic = config.get('SENSOR', 'temperatureMessageTopic')
-            ConfigurationReader.temperatureCalibration = config.getfloat('SENSOR', 'temperatureCalibration')
+    # def has_sensor_section(self, parser, _section_name):
+    #     return parser.has_section(_section_name)
 
-            # Humidity Values
-            ConfigurationReader.readHumidity = config.getboolean('SENSOR', 'readHumidity')
-            ConfigurationReader.humidityMessageTopic = config.get('SENSOR', 'humidityMessageTopic')
-            ConfigurationReader.humidityCalibration = config.getfloat('SENSOR', 'humidityCalibration')
+    def get_sensor_keys(self, _section_name):
+        key_value_dict = {}
+        for name, value in self.parser.items(_section_name):
+            # logger.debug('%s = %s', name, value)
+            key_value_dict[name] = value
 
-            # Light Values
-            ConfigurationReader.readLight = config.getboolean('SENSOR', 'readLight')
-            ConfigurationReader.lightMessageTopic = config.get('SENSOR', 'lightMessageTopic')
-            ConfigurationReader.lightCalibration = config.getfloat('SENSOR', 'lightCalibration')
-            ConfigurationReader.lightGpioPin = int(config.get('SENSOR', 'lightGpioPin'))
-
-            # CPU Temperature Values
-            ConfigurationReader.readLocalCPUTemp = config.getboolean('SENSOR', 'readLocalCPUTemp')
-            ConfigurationReader.localCPUMessageTopic = config.get('SENSOR', 'localCPUMessageTopic')
-
-            # Local IP Address
-            ConfigurationReader.readIPAddress = config.getboolean('SENSOR', 'readIPAddress')
-            ConfigurationReader.localIPMessageTopic = config.get('SENSOR', 'localIPMessageTopic')
-
-            # WIFI Checking Values
-            ConfigurationReader.wifiMonHostname = config.get('WIFI', 'wifiMonHostname')
-            ConfigurationReader.wifiCheckFrequency = int(config.get('WIFI', 'wifiCheckFrequency'))
-
-            logger.debug('Finished reading configurations')
-        except Exception as e:
-            logger.critical('Could NOT read Configuration! Error: %s ', format(e))
+        return key_value_dict

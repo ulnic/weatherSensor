@@ -17,4 +17,4 @@ class HTU21D(object):
 
     def read_humidity(self):
         print '*** MOCK HUMIDITY READING MOCK ***'
-        return 55.5
+        return float(25.5)

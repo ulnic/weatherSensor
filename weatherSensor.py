@@ -3,8 +3,6 @@ import logging.config
 import sys
 import threading
 import time
-
-from data.ConfigurationReader import ConfigurationReader
 from data.SensorHandler import SensorHandler
 from data.SingletonExecution import SingletonExecution
 from data.wifiChecker.WifiMon import WifiMon as WifiMon
@@ -18,25 +16,10 @@ SingletonExecution.ensure_only_one_instance()
 
 
 def update_sensor():
-
-    if ConfigurationReader.readTemperature or ConfigurationReader.readHumidity or ConfigurationReader.readLight:
-        sh = SensorHandler(ConfigurationReader.readTemperature, ConfigurationReader.temperatureMessageTopic,
-                           ConfigurationReader.temperatureCalibration,
-                           ConfigurationReader.readHumidity, ConfigurationReader.humidityMessageTopic,
-                           ConfigurationReader.humidityCalibration,
-                           ConfigurationReader.readLight, ConfigurationReader.lightMessageTopic,
-                           ConfigurationReader.lightCalibration, ConfigurationReader.lightGpioPin,
-                           ConfigurationReader.mqtt_host, ConfigurationReader.mqtt_port,
-                           ConfigurationReader.useMockSensor,
-                           ConfigurationReader.readLocalCPUTemp, ConfigurationReader.localCPUMessageTopic,
-                           ConfigurationReader.readIPAddress, ConfigurationReader.localIPMessageTopic)
-        t = threading.Thread(name='sensorReaderThread',
-                             target=sh.sensor_continuous_reader,
-                             args=(ConfigurationReader.polling_interval,))
-        t.setDaemon(True)
-        t.start()
-    else:
-        logger.info(" All sensor readers set to FALSE, not executing any sensor readings ")
+    sh = SensorHandler()
+    t = threading.Thread(name='sensorReaderThread', target=sh.sensor_continuous_reader)
+    t.setDaemon(True)
+    t.start()
 
 
 def monitor_wifi():
@@ -44,10 +27,8 @@ def monitor_wifi():
     Initiates a thread which will own the execution of the wifi checking and keep alive
     :return:
     """
-    wifi_monitor = WifiMon(ConfigurationReader.wifiMonHostname)
-    t = threading.Thread(name='wifiMonitorThread',
-                         target=wifi_monitor.keep_wifi_alive,
-                         args=(ConfigurationReader.wifiCheckFrequency,))
+    wifi_monitor = WifiMon()
+    t = threading.Thread(name='wifiMonitorThread', target=wifi_monitor.keep_wifi_alive)
     t.setDaemon(True)
     t.start()
 
@@ -58,8 +39,6 @@ def main(argv):
     logger.info('*************************************************')
     logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
     logger.info('*************************************************')
-    print argv
-    ConfigurationReader()  # Reads the configuration file and stores all values inside it's own class
 
     try:
         monitor_wifi()  # Sets up the wifi monitor thread

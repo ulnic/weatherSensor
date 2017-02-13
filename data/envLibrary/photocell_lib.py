@@ -10,22 +10,23 @@ import math
 
 GPIO.setmode(GPIO.BCM)
 
-def photocellRead (RCpin):
+
+def read_photocell(_gpio_pin):
     reading = 0
-    GPIO.setup(RCpin, GPIO.OUT)
-    GPIO.output(RCpin, GPIO.LOW)
+    GPIO.setup(_gpio_pin, GPIO.OUT)
+    GPIO.output(_gpio_pin, GPIO.LOW)
     time.sleep(1)
 
-    GPIO.setup(RCpin, GPIO.IN)
+    GPIO.setup(_gpio_pin, GPIO.IN)
     # This takes about 1 millisecond per loop cycle
-    while (GPIO.input(RCpin) == GPIO.LOW):
+    while GPIO.input(_gpio_pin) == GPIO.LOW:
         reading += 1
-    return convertToLinear(reading)
+    return float(convert_to_linear(reading))
 
 
-def convertToLinear(p):
+def convert_to_linear(p):
     if p > 0:
-        return abs(100-(math.log10(p)*30))
+        return abs(100 - (math.log10(p) * 30))
     elif p <= 0:
         return 100
     else:

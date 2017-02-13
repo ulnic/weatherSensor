@@ -3,25 +3,30 @@ import subprocess
 import time
 import logging
 import threading
+from data.Constants import Constant
+from data.ConfigurationReader import ConfigurationReader
 
 logger = logging.getLogger('sensorLogger')
-WLAN_check_flg = False
 
 
 class WifiMon(threading.Thread):
     threadExitFlag = 0
-    WLAN_check_flg = False
 
-    def __init__(self, wifi_ping_hostname="8.8.8.8"):
+    def __init__(self):
         threading.Thread.__init__(self)
-        self.wifiMonHostname = wifi_ping_hostname
-        logger.info('[wifi Alive check set to] set as: %s', self.wifiMonHostname)
+        self.cr = ConfigurationReader()
+        self.wifi_ping_host = (self.cr.get_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.WIFI_PING_HOST))
+        self.polling_interval = int(self.cr.get_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.POLLING_INTERVAL))
+        self.use_mock_sensor = bool(self.cr.get_key_in_section(Constant.CONFIG_SECTION_APP, Constant.USE_MOCK_SENSOR))
+        self.WLAN_check_flg = False
 
-    def keep_wifi_alive(self, wifi_check_frequency):
+        logger.info('[wifi Alive check set as: %s', self.wifi_ping_host)
+
+    def keep_wifi_alive(self):
         while not WifiMon.threadExitFlag:
             self.wlan_check()
-            logger.info("Sleeping WIFI thread for [%s] seconds ", wifi_check_frequency)
-            time.sleep(wifi_check_frequency)
+            logger.info("Sleeping WIFI thread for [%s] seconds ", self.polling_interval)
+            time.sleep(self.polling_interval)
 
     def wlan_check(self):
         """
@@ -30,28 +35,30 @@ class WifiMon(threading.Thread):
         If the resetting of the WLAN does not work, we need to reset the Pi.
         :return:
         """
+        if self.use_mock_sensor:
+            cmd = 'ping -c 1 -q ' + self.wifi_ping_host + ' | grep "1 packets received" > /dev/null 2> /dev/null'
+        else:
+            cmd = 'ping -c 1 -q ' + self.wifi_ping_host + ' | grep "1 received" > /dev/null 2> /dev/null'
 
-        ping_ret = subprocess.call(
-            ['ping -c 1 -q ' + self.wifiMonHostname + ' | grep "1 received" > /dev/null 2> /dev/null'],
-            shell=True)
+        ping_ret = subprocess.call(cmd, shell=True)
 
         if ping_ret:
             # we lost the WLAN connection.
             # did we try a recovery already?
-            if WifiMon.WLAN_check_flg:
+            if self.WLAN_check_flg:
                 # we have a serious problem and need to reboot the Pi to recover the WLAN connection
                 logger.critical(' *** Fatal ERROR in wifi checker *** ')
                 logger.critical(' *** After 1 retry, the wifi is NOT available *** ')
                 logger.critical(' *** Attempting SUDO REBOOT on Raspberry Pi *** ')
-                WifiMon.WLAN_check_flg = False
+                self.WLAN_check_flg = False
                 subprocess.call(['sudo reboot'], shell=True)
             else:
                 # try to recover the connection by resetting the LAN
-                logger.critical("PING to [%s] is LOST! ", self.wifiMonHostname)
+                logger.critical("PING to [%s] is LOST! ", self.wifi_ping_host)
                 logger.critical('Fatal error in wifiMon!')
                 logger.critical('ATTEMPTING to turn wifi OFF and ON again!')
-                WifiMon.WLAN_check_flg = True  # try to recover
+                self.WLAN_check_flg = True  # try to recover
                 subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
         else:
-            WifiMon.WLAN_check_flg = False
-            logger.info("PING to [%s] is Alive", self.wifiMonHostname)
+            self.WLAN_check_flg = False
+            logger.info("PING to [%s] is Alive", self.wifi_ping_host)

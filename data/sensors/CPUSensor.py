@@ -1,7 +1,8 @@
 #!/usr/bin/python
 import logging
-from data.sensors.AbstractSensor import AbstractSensor
 from subprocess import check_output
+
+from data.sensors.AbstractSensor import AbstractSensor
 
 logger = logging.getLogger('sensorLogger')
 

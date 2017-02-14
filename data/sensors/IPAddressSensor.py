@@ -1,6 +1,7 @@
 #!/usr/bin/python
-import subprocess
 import logging
+import subprocess
+
 from data.sensors.AbstractSensor import AbstractSensor
 
 logger = logging.getLogger('sensorLogger')
@@ -17,14 +18,11 @@ class IPAddressSensor(AbstractSensor):
         try:
             if self.use_mock_sensor:
                 cmd = 'ifconfig ' + self.interface + ' | grep "inet" | cut -d: -f2 | cut -d" " -f2 | grep -v "^$"'
-                _ip_address = subprocess.check_output(cmd, shell=True)
-                _ip_address = _ip_address.rstrip('\n')
             else:
                 cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1 | grep -v "^$"'
-            # cmd = 'ifconfig ' + self.interface + ' | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f2 | grep -v "^$"'
 
-                _ip_address = subprocess.check_output(cmd, shell=True)
-                _ip_address = _ip_address.rstrip('\n')
+            _ip_address = subprocess.check_output(cmd, shell=True)
+            _ip_address = _ip_address.rstrip('\n')
 
             logger.debug('IP ADDRESS RETURNED [%s]', _ip_address)
         except Exception as e:

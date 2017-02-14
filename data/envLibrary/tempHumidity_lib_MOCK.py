@@ -4,7 +4,7 @@ import time
 
 class i2c(object):
     def __init__(self, device, bus):
-        string = 'Not implemented'
+        pass
 
 
 class HTU21D(object):
@@ -12,9 +12,9 @@ class HTU21D(object):
         time.sleep(.1)
 
     def read_temperature(self):
-        print '*** MOCK TEMPERATURE READING MOCK ***'
+        print('*** MOCK TEMPERATURE READING MOCK ***')
         return 22.2
 
     def read_humidity(self):
-        print '*** MOCK HUMIDITY READING MOCK ***'
+        print('*** MOCK HUMIDITY READING MOCK ***')
         return float(25.5)

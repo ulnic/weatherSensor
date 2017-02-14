@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import logging
+
 from data.sensors.AbstractSensor import AbstractSensor
 
 logger = logging.getLogger('sensorLogger')
@@ -13,15 +14,16 @@ class LightSensor(AbstractSensor):
         self.gpioPin = _gpio_pin
         if self.use_mock_sensor:
             logger.warning("MOCK Readers enabled, please update the configuration file")
-            from data.envLibrary import photocell_lib_MOCK as photocell
+            from data.envLibrary import photocell_lib_MOCK as PhotoCell
         else:
             logger.debug("LIVE Readers on RPI used.")
-            from data.envLibrary import photocell_lib as photocell
+            from data.envLibrary import photocell_lib as PhotoCell
 
-        self.photoCellReader = photocell
+        self.photoCellReader = PhotoCell
 
     def read_sensor(self):
         logger.debug("Reading Light Sensor")
-        _sensor_reading = float("{:.1f}".format(self.photoCellReader.read_photocell(self.gpioPin) + float(self.calibrationValue)))
+        _sensor_reading = float(
+            "{:.1f}".format(self.photoCellReader.read_photocell(self.gpioPin) + float(self.calibrationValue)))
         logger.info("Light Reading is: %s", format(_sensor_reading))
         return _sensor_reading

@@ -3,15 +3,16 @@ import json
 import logging
 import threading
 import time
-from data.Constants import Constant
-from data.ConfigurationReader import ConfigurationReader
-from data.sensors.TemperatureSensor import TemperatureSensor
-from data.sensors.HumiditySensor import HumiditySensor
-from data.sensors.LightSensor import LightSensor
-from data.sensors.IPAddressSensor import IPAddressSensor
-from data.sensors.CPUSensor import CPUSensor
-from data.MQTTBroker import MQTTBroker
+
 from Utilities import *
+from data.ConfigurationReader import ConfigurationReader
+from data.Constants import Constant
+from data.MQTTBroker import MQTTBroker
+from data.sensors.CPUSensor import CPUSensor
+from data.sensors.HumiditySensor import HumiditySensor
+from data.sensors.IPAddressSensor import IPAddressSensor
+from data.sensors.LightSensor import LightSensor
+from data.sensors.TemperatureSensor import TemperatureSensor
 
 logger = logging.getLogger('sensorLogger')
 
@@ -61,8 +62,7 @@ class SensorHandler(threading.Thread):
             # Validate that the config key enable_sensor exist AND is set to TRUE
             _enable_sensor = False
             if Constant.ENABLE_SENSOR in keys and \
-                    bool(keys[Constant.ENABLE_SENSOR]) and \
-                            keys[Constant.ENABLE_SENSOR].lower() != 'false':
+                    bool(keys[Constant.ENABLE_SENSOR]) and keys[Constant.ENABLE_SENSOR].lower() != 'false':
                 _enable_sensor = True
                 logger.debug('%s  ---  %s', sensor, _enable_sensor.__str__())
 
@@ -108,7 +108,6 @@ class SensorHandler(threading.Thread):
             for AbstractSensor in _sensor_list:
                 data[AbstractSensor.json_key] = str(AbstractSensor.read_sensor())
         except Exception as e:
-            print e.__str__()
             logger.critical("ERROR when creating Sensors. Error was [%s]", e.__str__())
 
         json_data = json.dumps(data)

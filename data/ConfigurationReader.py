@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import logging
+# noinspection PyCompatibility
 from ConfigParser import SafeConfigParser
 
 logger = logging.getLogger('sensorLogger')
@@ -12,7 +13,7 @@ class ConfigurationReader(object):
         logger.info('Reading  configurations from file')
 
         self.parser = SafeConfigParser()
-        self.parser.read('config/configuration.ini')
+        self.parser.read(['config/configuration.ini', '../config/configuration.ini'])
 
     def get_key_in_section(self, _section_name, _key_name):
         return self.parser.get(_section_name, _key_name)

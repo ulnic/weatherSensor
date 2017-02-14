@@ -3,6 +3,7 @@ import logging.config
 import sys
 import threading
 import time
+
 from data.SensorHandler import SensorHandler
 from data.SingletonExecution import SingletonExecution
 from data.wifiChecker.WifiMon import WifiMon as WifiMon
@@ -35,11 +36,11 @@ def monitor_wifi():
 
 # Main method
 def main(argv):
-    print 'CTRL+C to break and exit'
+    print('CTRL+C to break and exit')
     logger.info('*************************************************')
     logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
     logger.info('*************************************************')
-
+    logger.debug('Parameters included on start was [%s]', argv)
     try:
         monitor_wifi()  # Sets up the wifi monitor thread
         update_sensor()  # Sets up the monitor sensor & mqtt publishing thread

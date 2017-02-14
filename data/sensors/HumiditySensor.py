@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import logging
+
 from data.sensors.AbstractSensor import AbstractSensor
 
 logger = logging.getLogger('sensorLogger')
@@ -23,7 +24,7 @@ class HumiditySensor(AbstractSensor):
     def read_sensor(self):
         logger.debug("Reading Humidity Sensor")
         _sensor_reading = float("{0:.1f}".format(self.readSensor.read_humidity()))
-        _calib_reading = float("{0:.1f}".format(float(self.calibrationValue)))
-        _sensor_value = _sensor_reading + _calib_reading
+        _calibrate_reading = float("{0:.1f}".format(float(self.calibrationValue)))
+        _sensor_value = _sensor_reading + _calibrate_reading
         logger.info("Humidity Reading is: %f", _sensor_value)
         return _sensor_value

@@ -26,8 +26,5 @@ class LightSensor(AbstractSensor):
         _sensor_reading = float("{0:.1f}".format(self.photoCellReader.read_photocell(int(self.gpioPin))))
         _calibrate_reading = float("{0:.1f}".format(float(self.calibrationValue)))
         _sensor_value = _sensor_reading + _calibrate_reading
-
-        #_sensor_reading = float(
-        #    "{0:.1f}".format(self.photoCellReader.read_photocell(self.gpioPin) + float(self.calibrationValue)))
         logger.info("Light Reading is: %s", format(_sensor_value))
         return _sensor_reading

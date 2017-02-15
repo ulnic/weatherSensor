@@ -7,8 +7,8 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 ## Needed parts:
 
 * A [Raspberry Pi Zero](https://www.raspberrypi.org/products/pi-zero/).  Or any Raspberry Pi.
-* Any old MicroSD card.  2GB is plenty.
-* A USB WiFi dongle (and a MicroUSB adapter if you choose the Pi Zero)
+* Any old MicroSD card. 
+* A USB WiFi dongle (and a OTG adapter if you choose the Pi Zero)
 * An [HTU21D-F Temperature & Humidity Sensor](https://learn.adafruit.com/adafruit-htu21d-f-temperature-humidity-sensor/overview)
 * Any microUSB power source
 
@@ -42,7 +42,7 @@ Your OS should now be ready to boot and automatically jump on your home network!
 
 1. Insert the microSD card into the Raspberry Pi.
 
-2. Add the WiFi dongle to Raspberry Pi USB port.  A Raspberry Pi Zero will need a [microUSB adaptor](https://www.amazon.com/gp/product/B015GZOHKW/).
+2. Add the [WiFi dongle](https://www.adafruit.com/products/814) to Raspberry Pi USB port.  A Raspberry Pi Zero will need a [OTG Adapter adaptor](https://www.adafruit.com/product/2910).
 
 3. Add the HTU21D-F Temperature & Humidity Sensor to [Raspberry Pi GPIO pins](https://pinout.xyz/). 
 
@@ -66,16 +66,14 @@ Clone the weatherSensor github repository
 
     sudo git clone https://github.com/ulnic/weatherSensor.git
     
-Install weatherSensor dependencies (this includes [RPI.GPIO](https://pypi.python.org/pypi/RPi.GPIO) and [MQTT PAHO](https://eclipse.org/paho/))
+Install weatherSensor dependencies (this includes [RPI.GPIO](https://pypi.python.org/pypi/RPi.GPIO) and [MQTT PAHO](https://github.com/eclipse/paho.mqtt.python))
 
     pip install -r requirements.txt
 
-
-
 Create the settings file `/home/pi/weatherSensor/config/configuration.ini`.  This file specifies what sensor pin to monitor, what messages you want, and what services to send the message to. 
-
-* If you want PushBullet notifications, create a PushBullet Access Token key here:  https://www.pushbullet.com/#settings/account
-* If you want Twitter notifications, create Twitter API keys here (Steps 1-4): http://nodotcom.org/python-twitter-tutorial.html
+Configure as per below:
+* If first time, make a copy of `configuration.ini.sample` and call it `configuration.ini`. This file name is important
+* Configure the sections and key-values accordingly. 
 
 Edit `/etc/rc.local` to make the program run when the device boots up.
 
@@ -114,14 +112,4 @@ and add/uncomment:
 
 ### Install raspberry pi packages
 _sudo apt-get --assume-yes install python-pip i2c-tools python-rpi.gpio_
-
 --sudo apt-get --assume-yes install python-smbus python-dev python-rpi.gpio--
-
-
-### Configure weatherStation
-
-
-https://github.com/eclipse/paho.mqtt.python
-
-
-https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet

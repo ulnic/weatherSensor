@@ -59,7 +59,7 @@ class WifiMon(threading.Thread):
                 logger.critical(' *** After 1 retry, the wifi is NOT available *** ')
                 logger.critical(' *** Attempting SUDO REBOOT on Raspberry Pi *** ')
                 self.WLAN_check_flg = False
-                # subprocess.call(['sudo reboot'], shell=True)
+                subprocess.call(['sudo reboot'], shell=True)
                 return -1
             else:
                 # try to recover the connection by resetting the LAN
@@ -67,7 +67,7 @@ class WifiMon(threading.Thread):
                 logger.critical('Fatal error in wifiMon!')
                 logger.critical('ATTEMPTING to turn wifi OFF and ON again!')
                 self.WLAN_check_flg = True  # try to recover
-                # subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
+                subprocess.call(['sudo /sbin/ifdown wlan0 && sleep 10 && sudo /sbin/ifup --force wlan0'], shell=True)
                 return -2
         else:
             self.WLAN_check_flg = False

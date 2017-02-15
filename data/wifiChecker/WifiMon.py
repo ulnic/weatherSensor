@@ -16,9 +16,14 @@ class WifiMon(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.cr = ConfigurationReader()
-        self.wifi_ping_host = (self.cr.get_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.WIFI_PING_HOST))
-        self.polling_interval = int(self.cr.get_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.POLLING_INTERVAL))
-        self.use_mock_sensor = bool(self.cr.get_key_in_section(Constant.CONFIG_SECTION_APP, Constant.USE_MOCK_SENSOR))
+
+        if not self.cr.has_sensor_section(Constant.CONFIG_SECTION_WIFI):
+            logger.fatal("NO WIFI Section found in configuration file. Update Config file and restart")
+            raise SystemExit(0)
+
+        self.wifi_ping_host = self.cr.get_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.WIFI_PING_HOST)
+        self.polling_interval = self.cr.get_int_key_in_section(Constant.CONFIG_SECTION_WIFI, Constant.POLLING_INTERVAL)
+        self.use_mock_sensor = self.cr.get_bool_key_in_section(Constant.CONFIG_SECTION_APP, Constant.USE_MOCK_SENSOR)
         self.WLAN_check_flg = False
 
         logger.info('[wifi Alive check set as: %s', self.wifi_ping_host)
@@ -42,7 +47,6 @@ class WifiMon(threading.Thread):
             cmd = 'ping -c 1 -q ' + self.wifi_ping_host + ' | grep "1 received" '
 
         logger.debug(cmd)
-        # ping_ret = subprocess.call(cmd, shell=True)
 
         ping_ret = ''
         try:

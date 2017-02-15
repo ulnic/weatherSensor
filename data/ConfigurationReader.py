@@ -18,12 +18,18 @@ class ConfigurationReader(object):
     def get_key_in_section(self, _section_name, _key_name):
         return self.parser.get(_section_name, _key_name)
 
+    def get_bool_key_in_section(self, _section_name, _key_name):
+        return self.parser.getboolean(_section_name, _key_name)
+
+    def get_int_key_in_section(self, _section_name, _key_name):
+        return self.parser.getint(_section_name, _key_name)
+
     def get_all_section_names(self):
         """Returns a list of config section names."""
         return [m for m in self.parser.sections()]
 
-    # def has_sensor_section(self, parser, _section_name):
-    #     return parser.has_section(_section_name)
+    def has_sensor_section(self, _section_name):
+         return self.parser.has_section(_section_name)
 
     def get_sensor_keys(self, _section_name):
         key_value_dict = {}

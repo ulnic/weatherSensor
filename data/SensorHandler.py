@@ -106,6 +106,7 @@ class SensorHandler(threading.Thread):
 
         try:
             for AbstractSensor in _sensor_list:
+                logger.debug("Reading %s", AbstractSensor.json_key)
                 data[AbstractSensor.json_key] = str(AbstractSensor.read_sensor())
         except Exception as e:
             logger.critical("ERROR when creating Sensors. Error was [%s]", e.__str__())

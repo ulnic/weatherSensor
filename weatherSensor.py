@@ -1,22 +1,30 @@
 #!/usr/bin/python
+"""
+Entry point into the weather sensor
+"""
 import logging.config
 import sys
 import threading
 import time
 
 from data.SensorHandler import SensorHandler
-from data.SingletonExecution import SingletonExecution
+import data.SingletonExecution
 from data.wifiChecker.WifiMon import WifiMon as WifiMon
+from data.Constants import Constant
 
 # Define the Error Log Details
-logging.config.fileConfig('config/logging.ini')
-logger = logging.getLogger('sensorLogger')
+logging.config.fileConfig(Constant.LOGGER_FILE_NAME)
+logger = logging.getLogger(Constant.LOGGER_NAME)
 
 # Run a check and close any previously running instances of the same application
-SingletonExecution.ensure_only_one_instance()
+data.SingletonExecution.SingletonExecution.ensure_only_one_instance()
 
 
 def update_sensor():
+    """
+    Initiates a thread which will validate ALL Sensors and then run them with the frequency defined
+    inside the configuration.ini file.
+    """
     sh = SensorHandler()
     t = threading.Thread(name='sensorReaderThread', target=sh.sensor_continuous_reader)
     t.setDaemon(True)
@@ -26,7 +34,6 @@ def update_sensor():
 def monitor_wifi():
     """
     Initiates a thread which will own the execution of the wifi checking and keep alive
-    :return:
     """
     wifi_monitor = WifiMon()
     t = threading.Thread(name='wifiMonitorThread', target=wifi_monitor.keep_wifi_alive)
@@ -34,8 +41,12 @@ def monitor_wifi():
     t.start()
 
 
-# Main method
 def main(argv):
+    """
+    Start of weatherSensor
+    :param argv:
+        any command line entries
+    """
     print('CTRL+C to break and exit')
     logger.info('*************************************************')
     logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
@@ -54,4 +65,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv)  # Executing the main function
+    main(sys.argv)

@@ -1,9 +1,14 @@
 #!/usr/bin/python
-
+"""
+Abstract Base Class
+"""
 import abc
 
 
 class AbstractSensor(object):
+    """
+    Abstract Base class for all sensors
+    """
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
@@ -13,5 +18,8 @@ class AbstractSensor(object):
 
     @abc.abstractmethod
     def read_sensor(self):
+        """
+        Abstract method
+        """
         return 'Should never see this'
 

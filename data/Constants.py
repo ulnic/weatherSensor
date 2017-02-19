@@ -1,10 +1,14 @@
 #!/usr/bin/python
+"""
+All hardcoded values across weatherSensor is handled here
+"""
 
 
 class Constant(object):
-
-    def __init__(self):
-        pass
+    """
+    Each constant holds its unique text, all text values stored here and
+    these are used throughout weatherSensor.
+    """
 
     CONFIG_SECTION_APP = 'APP'
     USE_MOCK_SENSOR = 'use_mock_sensor'
@@ -28,3 +32,10 @@ class Constant(object):
     CONFIG_SECTION_WIFI = 'WIFI'
     SENSOR_IP_ADDRESS_INTERFACE = 'interface'
     WIFI_PING_HOST = 'wifi_ping_host'
+
+    LOGGER_NAME = 'sensorLogger'
+    LOGGER_FILE_NAME = 'config/logging.ini'
+    CONFIG_FILE_NAME = ['config/configuration.ini', '../config/configuration.ini']
+
+    def __init__(self):
+        pass

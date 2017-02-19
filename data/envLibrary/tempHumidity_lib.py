@@ -1,4 +1,7 @@
 #!/usr/bin/python
+"""
+Temperature & Humidity class
+"""
 import array
 import time
 import io
@@ -15,40 +18,47 @@ CMD_READ_USER_REG = "\xE7"
 CMD_SOFT_RESET = "\xFE"
 
 
-class i2c(object):
+# noinspection PyMissingOrEmptyDocstring
+class I2C(object):
+    """
+    I2C RPI Reader and writer class
+    """
     def __init__(self, device, bus):
         self.fr = io.open("/dev/i2c-" + str(bus), "rb", buffering=0)
         self.fw = io.open("/dev/i2c-" + str(bus), "wb", buffering=0)
 
         # set device address
-
         fcntl.ioctl(self.fr, I2C_SLAVE, device)
         fcntl.ioctl(self.fw, I2C_SLAVE, device)
 
-    def write(self, bytes):
-        self.fw.write(bytes)
+    def write(self, _bytes):
+        self.fw.write(_bytes)
 
-    def read(self, bytes):
-        return self.fr.read(bytes)
+    def read(self, _bytes):
+        return self.fr.read(_bytes)
 
     def close(self):
         self.fw.close()
         self.fr.close()
 
 
+# noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
 class HTU21D(object):
+    """
+    HTU21D-f from Adafruit class
+    """
     def __init__(self):
-        self.dev = i2c(HTU21D_ADDR, 1)  # HTU21D 0x40, bus 1
+        self.dev = I2C(HTU21D_ADDR, 1)  # HTU21D 0x40, bus 1
         self.dev.write(CMD_SOFT_RESET)  # soft reset
         time.sleep(.1)
 
-    def ctemp(self, sensorTemp):
-        tSensorTemp = sensorTemp / 65536.0
-        return -46.85 + (175.72 * tSensorTemp)
+    def ctemp(self, sensor_temp):
+        t_sensor_temp = sensor_temp / 65536.0
+        return -46.85 + (175.72 * t_sensor_temp)
 
-    def chumid(self, sensorHumid):
-        tSensorHumid = sensorHumid / 65536.0
-        return -6.0 + (125.0 * tSensorHumid)
+    def chumid(self, sensor_humid):
+        t_sensor_humid = sensor_humid / 65536.0
+        return -6.0 + (125.0 * t_sensor_humid)
 
     def crc8check(self, value):
         # Ported from Sparkfun Arduino HTU21D Library: https://github.com/sparkfun/HTU21D_Breakout
@@ -56,13 +66,13 @@ class HTU21D(object):
         remainder |= value[2]
 
         # POLYNOMIAL = 0x0131 = x^8 + x^5 + x^4 + 1
-        # divsor = 0x988000 is the 0x0131 polynomial shifted to farthest left of three bytes
-        divsor = 0x988000
+        # divisor = 0x988000 is the 0x0131 polynomial shifted to farthest left of three bytes
+        divisor = 0x988000
 
         for i in range(0, 16):
             if (remainder & 1 << (23 - i)):
-                remainder ^= divsor
-            divsor = divsor >> 1
+                remainder ^= divisor
+            divisor = divisor >> 1
 
         if remainder == 0:
             return True

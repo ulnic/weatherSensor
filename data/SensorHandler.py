@@ -45,7 +45,7 @@ class SensorHandler(threading.Thread):
         Creates the json blob by reading all active sensors, and calls the MQTT class to publish
         :return: void
         """
-        _json = self.read_values_and_generate_json(self.sensorList)
+        _json = SensorHandler.read_values_and_generate_json(self.sensorList)
         logger.debug("MQTT: Initializing")
         self.mqtt.publish(_json)
         logger.debug("MQTT: DIS-CONNECTED")
@@ -73,42 +73,37 @@ class SensorHandler(threading.Thread):
             keys = self.cr.get_sensor_keys(sensor)
 
             # Validate that the config key enable_sensor exist AND is set to TRUE
-            _enable_sensor = False
             if Constant.ENABLE_SENSOR in keys and \
                     bool(keys[Constant.ENABLE_SENSOR]) and keys[Constant.ENABLE_SENSOR].lower() != 'false':
-                _enable_sensor = True
-                logger.debug('%s  ---  %s', sensor, _enable_sensor.__str__())
+                logger.debug('%s  ---  true', sensor)
 
-            # TODO: refactor enable sensors and the list append here
+                if sensor == Constant.CONFIG_SECTION_TEMPERATURE:
+                    logger.info("Creating TEMPERATURE Sensor")
+                    s = TemperatureSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
+                                          keys[Constant.SENSOR_JSON_KEY])
 
-            if sensor == Constant.CONFIG_SECTION_TEMPERATURE and _enable_sensor:
-                logger.info("Creating TEMPERATURE Sensor")
-                s = TemperatureSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
-                                      keys[Constant.SENSOR_JSON_KEY])
-                sensor_list.append(s)
+                elif sensor == Constant.CONFIG_SECTION_HUMIDITY:
+                    logger.info("Creating HUMIDITY Sensor")
+                    s = HumiditySensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
+                                       keys[Constant.SENSOR_JSON_KEY])
 
-            elif sensor == Constant.CONFIG_SECTION_HUMIDITY and _enable_sensor:
-                logger.info("Creating HUMIDITY Sensor")
-                s = HumiditySensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
-                                   keys[Constant.SENSOR_JSON_KEY])
-                sensor_list.append(s)
+                elif sensor == Constant.CONFIG_SECTION_LIGHT:
+                    logger.info("Creating LIGHT Sensor")
+                    s = LightSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
+                                    keys[Constant.SENSOR_JSON_KEY],
+                                    keys[Constant.SENSOR_GPIO_PIN])
 
-            elif sensor == Constant.CONFIG_SECTION_LIGHT and _enable_sensor:
-                logger.info("Creating LIGHT Sensor")
-                s = LightSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor, keys[Constant.SENSOR_JSON_KEY],
-                                keys[Constant.SENSOR_GPIO_PIN])
-                sensor_list.append(s)
+                elif sensor == Constant.CONFIG_SECTION_IP_ADDRESS:
+                    logger.info("Creating IP Address Sensor")
+                    s = IPAddressSensor(self.use_mock_sensor, keys[Constant.SENSOR_JSON_KEY],
+                                        keys[Constant.SENSOR_IP_ADDRESS_INTERFACE])
 
-            elif sensor == Constant.CONFIG_SECTION_IP_ADDRESS and _enable_sensor:
-                logger.info("Creating IP Address Sensor")
-                s = IPAddressSensor(self.use_mock_sensor, keys[Constant.SENSOR_JSON_KEY],
-                                    keys[Constant.SENSOR_IP_ADDRESS_INTERFACE])
-                sensor_list.append(s)
+                elif sensor == Constant.CONFIG_SECTION_CPU:
+                    logger.info("Creating CPU TEMPERATURE Sensor")
+                    s = CPUSensor(self.use_mock_sensor, keys[Constant.SENSOR_JSON_KEY])
 
-            elif sensor == Constant.CONFIG_SECTION_CPU and _enable_sensor:
-                logger.info("Creating CPU TEMPERATURE Sensor")
-                s = CPUSensor(self.use_mock_sensor, keys[Constant.SENSOR_JSON_KEY])
-                sensor_list.append(s)
+                if s is not None:
+                    sensor_list.append(s)
 
         if len(sensor_list) == 0:
             logger.warning("*****************************************************************************")
@@ -116,7 +111,8 @@ class SensorHandler(threading.Thread):
             logger.warning("*****************************************************************************")
         return sensor_list
 
-    def read_values_and_generate_json(self, _sensor_list):
+    @staticmethod
+    def read_values_and_generate_json(_sensor_list):
         """
         Creates a well formed JSON blob with all sensors values.
         :param _sensor_list: (List) of all sensors to generate the json blob from
@@ -126,7 +122,7 @@ class SensorHandler(threading.Thread):
 
         try:
             for AbstractSensor in _sensor_list:
-                logger.debug("Reading %s", AbstractSensor.json_key)
+                logger.debug("Reading {0}".format(AbstractSensor.json_key))
                 data[AbstractSensor.json_key] = str(AbstractSensor.read_sensor())
         except Exception as e:
             logger.critical("ERROR when creating Sensors. Error was [{0}]".format(e.__str__()))

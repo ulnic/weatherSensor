@@ -3,13 +3,16 @@
 UNIT TEST Class
 """
 from __future__ import absolute_import
-
 from unittest import TestCase
-
+import logging.config
+from data.Constants import Constant
 from data.wifiChecker.WifiMon import WifiMon
 
 
 class TestWifiMon(TestCase):
+    def setUp(self):
+        self.logger = logging.getLogger(Constant.LOGGER_NAME)
+
     def test_wlan_check_success(self):
         wifi_monitor = WifiMon()
         wifi_monitor.use_mock_sensor = True

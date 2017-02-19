@@ -33,5 +33,5 @@ class TemperatureSensor(data.sensors.AbstractSensor.AbstractSensor):
         """
         logger.debug("Reading Temperature Sensor")
         _sensor_reading = float("{0:.1f}".format(self.readSensor.read_temperature() + float(self.calibrationValue)))
-        logger.info("Temperature Reading is: %s", format(_sensor_reading))
+        logger.info("Temperature Reading is: {0}".format(_sensor_reading))
         return _sensor_reading

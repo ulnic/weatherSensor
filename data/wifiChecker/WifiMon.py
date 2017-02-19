@@ -79,7 +79,7 @@ class WifiMon(threading.Thread):
                 return -1
             else:
                 # try to recover the connection by resetting the LAN
-                logger.critical("PING to [%s] is LOST! ", self.wifi_ping_host)
+                logger.critical("PING to [{0}] is LOST! ".format(self.wifi_ping_host))
                 logger.critical('Fatal error in wifiMon!')
                 logger.critical('ATTEMPTING to turn wifi OFF and ON again!')
                 self.WLAN_check_flg = True  # try to recover
@@ -87,6 +87,6 @@ class WifiMon(threading.Thread):
                 return -2
         else:
             self.WLAN_check_flg = False
-            logger.info("PING to [%s] is Alive", self.wifi_ping_host)
+            logger.info("PING to [{0}] is Alive".format(self.wifi_ping_host))
             return 1
 

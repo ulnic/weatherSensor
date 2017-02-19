@@ -75,7 +75,7 @@ class SensorHandler(threading.Thread):
             # Validate that the config key enable_sensor exist AND is set to TRUE
             if Constant.ENABLE_SENSOR in keys and \
                     bool(keys[Constant.ENABLE_SENSOR]) and keys[Constant.ENABLE_SENSOR].lower() != 'false':
-                logger.debug('%s  ---  true', sensor)
+                logger.debug('{0}  ---  true'.format(sensor))
 
                 if sensor == Constant.CONFIG_SECTION_TEMPERATURE:
                     logger.info("Creating TEMPERATURE Sensor")

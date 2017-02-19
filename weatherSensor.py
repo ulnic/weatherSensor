@@ -51,7 +51,7 @@ def main(argv):
     logger.info('*************************************************')
     logger.info('***** MQTT SensorCLIENT APPLICATION STARTED *****')
     logger.info('*************************************************')
-    logger.debug('Parameters included on start was [%s]', argv)
+    logger.debug('Parameters included on start was [{0}]'.format(argv))
     try:
         monitor_wifi()  # Sets up the wifi monitor thread
         update_sensor()  # Sets up the monitor sensor & mqtt publishing thread

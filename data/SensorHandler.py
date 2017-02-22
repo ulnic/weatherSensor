@@ -121,9 +121,9 @@ class SensorHandler(threading.Thread):
         data = {}
 
         try:
-            for AbstractSensor in _sensor_list:
-                logger.debug("Reading {0}".format(AbstractSensor.json_key))
-                data[AbstractSensor.json_key] = str(AbstractSensor.read_sensor())
+            for abstract_sensor in _sensor_list:
+                logger.debug("Reading {0}".format(abstract_sensor.json_key))
+                data[abstract_sensor.json_key] = str(abstract_sensor.read_sensor())
         except Exception as e:
             logger.critical("ERROR when creating Sensors. Error was [{0}]".format(e.__str__()))
 

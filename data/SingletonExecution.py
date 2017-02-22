@@ -24,11 +24,10 @@ class SingletonExecution(object):
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         out = p.communicate()[0]
         for pid in out.splitlines():
-            if my_pid != pid:
-                if int(pid) != int(my_pid):
-                    try:
-                        os.kill(int(pid), signal.SIGKILL)
-                        print("KILLED old weatherSensor.py record [ {0} ]".format(pid))
-                    except Exception as e:
-                        print("err - could not kill previous running instance [ {0} ]".format(pid))
-                        print("Error was: [{0}]".format(e.__str__()))
+            if my_pid != pid and int(pid) != int(my_pid):
+                try:
+                    os.kill(int(pid), signal.SIGKILL)
+                    print("KILLED old weatherSensor.py record [ {0} ]".format(pid))
+                except Exception as e:
+                    print("err - could not kill previous running instance [ {0} ]".format(pid))
+                    print("Error was: [{0}]".format(e.__str__()))

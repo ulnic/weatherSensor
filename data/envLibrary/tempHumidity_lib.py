@@ -70,9 +70,9 @@ class HTU21D(object):
         divisor = 0x988000
 
         for i in range(0, 16):
-            if (remainder & 1 << (23 - i)):
+            if remainder & 1 << (23 - i):
                 remainder ^= divisor
-            divisor = divisor >> 1
+            divisor >>= 1
 
         if remainder == 0:
             return True

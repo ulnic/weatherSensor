@@ -13,5 +13,5 @@ def read_photocell(_gpio_pin):
     :return: Read value
     """
     print('*** MOCK PHOTOCELL READ MOCK ***')
-    value = (float(_gpio_pin) * random.randint(1, 10))
+    value = float(_gpio_pin) * random.randint(1, 10)
     return value

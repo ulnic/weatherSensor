@@ -43,6 +43,7 @@ class I2C(object):
 
 
 # noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
+# noinspection PyMethodMayBeStatic
 class HTU21D(object):
     """
     HTU21D-f from Adafruit class

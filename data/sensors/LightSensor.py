@@ -13,6 +13,8 @@ class LightSensor(AbstractSensor):
     """
     LIGHT Sensor class
     """
+
+    # noinspection PyUnresolvedReferences
     def __init__(self, _calibration_value, _use_mock_sensor, _json_key, _gpio_pin):
         super(self.__class__, self).__init__(_json_key, _use_mock_sensor)
         self.calibrationValue = _calibration_value

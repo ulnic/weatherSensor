@@ -73,19 +73,19 @@ class SensorHandler(threading.Thread):
             keys = self.cr.get_sensor_keys(sensor)
 
             # Validate that the config key enable_sensor exist AND is set to TRUE
-            if Constant.ENABLE_SENSOR in keys and \
-                    bool(keys[Constant.ENABLE_SENSOR]) and keys[Constant.ENABLE_SENSOR].lower() != 'false':
+            if Constant.SENSOR_ENABLE in keys and \
+                    bool(keys[Constant.SENSOR_ENABLE]) and keys[Constant.SENSOR_ENABLE].lower() != 'false':
                 logger.debug('{0}  ---  true'.format(sensor))
 
                 if sensor == Constant.CONFIG_SECTION_TEMPERATURE:
                     logger.info("Creating TEMPERATURE Sensor")
                     s = TemperatureSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
-                                          keys[Constant.SENSOR_JSON_KEY])
+                                          keys[Constant.SENSOR_JSON_KEY], keys[Constant.SENSOR_TYPE])
 
                 elif sensor == Constant.CONFIG_SECTION_HUMIDITY:
                     logger.info("Creating HUMIDITY Sensor")
                     s = HumiditySensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,
-                                       keys[Constant.SENSOR_JSON_KEY])
+                                       keys[Constant.SENSOR_JSON_KEY], keys[Constant.SENSOR_TYPE])
 
                 elif sensor == Constant.CONFIG_SECTION_LIGHT:
                     logger.info("Creating LIGHT Sensor")

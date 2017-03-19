@@ -7,7 +7,7 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 ## Needed parts:
 
 * A [Raspberry Pi Zero](https://www.raspberrypi.org/products/pi-zero/).  Or any Raspberry Pi.
-* Any old MicroSD card. 
+* Any MicroSD card. 
 * A USB WiFi dongle (and a OTG adapter if you choose the Pi Zero)
 * An [HTU21D-F Temperature & Humidity Sensor](https://learn.adafruit.com/adafruit-htu21d-f-temperature-humidity-sensor/overview)
 * Any microUSB power source
@@ -19,13 +19,16 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 
 1. [Download Raspbian Jessie Lite](https://www.raspberrypi.org/downloads/raspbian/) and image it onto an SD card 
 
-2. Mount the SD card on your computer.  There should be two partitions, a FAT32 **boot partition**, and an EXT3 **OS partition**.  On [Mac](https://osxfuse.github.io/) or [Windows](http://www.chrysocome.net/explore2fs), you may need to find a driver to see EXT3 partitions (see links).
+2. Mount the SD card on your computer. Easiest is to follow the [RPi guide](https://www.raspberrypi.org/documentation/installation/installing-images/README.md)
 
-3. Add an empty file named `ssh` to the **boot partition**.  This enables the ssh daemon.
+3. Add an empty file named `ssh` to the **boot partition**.  This enables the ssh daemon. This can be done via terminal / PuTTy and then
+ `sudo touch ssh`
 
 4. Edit these files on the **OS partition**:
   * Edit `/etc/hostname` and `/etc/hosts` to change “raspberrypi” to a **unique host name**
+    *  `sudo nano /etc/hostname` and `sudo nano /etc/hosts`
   * Edit `/etc/wpa_supplicant/wpa_supplicant.conf` to add your WiFi authentication:
+    * `sudo nano `/etc/wpa_supplicant/wpa_supplicant.conf`
 
 ```
     network={
@@ -34,8 +37,11 @@ These instructions are for a simple Raspberry Pi project that can be used in any
     }
 ```
 
-Your OS should now be ready to boot and automatically jump on your home network!
-
+5. Via Terminal or PuTTy (or similar), log into the raspberry pi and ensure it's up 2 date
+ ```
+ sudo apt-get update
+ sudo apt-get upgrade
+```
 
 
 # Step 2: Create the hardware
@@ -61,6 +67,7 @@ Set the timezone to make sure timestamps are correct
     sudo raspi-config
     [Internationalisation Options]
     [Change Timezone]
+    [Interfacing Options] --> [I2C Interface] --> Enable / Yes
 
 Clone the weatherSensor github repository
 
@@ -68,7 +75,7 @@ Clone the weatherSensor github repository
     
 Install weatherSensor dependencies (this includes [RPI.GPIO](https://pypi.python.org/pypi/RPi.GPIO) and [MQTT PAHO](https://github.com/eclipse/paho.mqtt.python))
 
-    pip install -r requirements.txt
+    sudo pip install -r weatherSensor/install/requirements.txt
 
 Create the settings file `/home/pi/weatherSensor/config/configuration.ini`.  This file specifies what sensor pin to monitor, what messages you want, and what services to send the message to. 
 Configure as per below:
@@ -84,32 +91,35 @@ Add before the `exit` line:
 
 You’re done!  Reboot and test it out.
 
+# Step 4: (Optional) Setup [Home Assistant](https://home-assistant.io)
 
+This weatherSensor works great with Home Assistant and a MQTT Broker.
+Configure your Home Assistant yaml file similar to below:
 
+    - platform: mqtt
+      name: "Bedroom Temperature"
+      state_topic: "weatherSensor/bedroom/rpi"
+      value_template: '{{ value_json.temperature }}'
+      unit_of_measurement: "Â°C"
+      qos: 0
 
-# Delete below
-## Setup the Raspberry pi with
+    - platform: mqtt
+      name: "Bedroom Humidity"
+      state_topic: "weatherSensor/bedroom/rpi"
+      value_template: '{{ value_json.humidity }}'
+      unit_of_measurement: "%"
+      qos: 0
 
-### Enable SSH & I2C
-type 
-```
-sudo raspi-config
-```
- Then select Advanced Options and enable SSH and I2C
+    - platform: mqtt
+      name: "Bedroom CPU"
+      state_topic: "weatherSensor/bedroom/rpi"
+      value_template: '{{ value_json.cpu }}'
+      unit_of_measurement: "C"
+      qos: 0
 
-alternative via:
-
-ENABLE I2C:
-sudo echo i2c-bcm2708 >> /etc/modules
-sudo echo i2c-dev >> /etc/modules
-
-sudo nano /boot/config.txt
-and add/uncomment:
-	dtparam=i2c1=on
-	dtparam=i2c_arm=on
-
-
-
-### Install raspberry pi packages
-_sudo apt-get --assume-yes install python-pip i2c-tools python-rpi.gpio_
---sudo apt-get --assume-yes install python-smbus python-dev python-rpi.gpio--
+    - platform: mqtt
+      name: "Bedroom IP"
+      state_topic: "weatherSensor/bedroom/rpi"
+      value_template: '{{ value_json.ipaddress }}'
+      qos: 0
+   

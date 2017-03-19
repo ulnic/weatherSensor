@@ -19,10 +19,14 @@ class Constant(object):
     CONFIG_SECTION_LIGHT = 'SENSOR_LIGHT'
     CONFIG_SECTION_CPU = 'SENSOR_CPU'
     CONFIG_SECTION_IP_ADDRESS = 'SENSOR_IP_ADDRESS'
-    ENABLE_SENSOR = 'enable_sensor'
+    SENSOR_ENABLE = 'sensor_enable'
     SENSOR_CALIBRATION = 'sensor_calibration'
     SENSOR_JSON_KEY = 'sensor_json_key'
     SENSOR_GPIO_PIN = 'sensor_gpio_pin'
+    SENSOR_TYPE = 'sensor_type'
+
+    SENSOR_TYPE_OPTION_HTU21D = 'HTU21D'
+    SENSOR_TYPE_OPTION_SHT31D = 'SHT31'
 
     CONFIG_SECTION_MQTT = 'MQTT'
     MQTT_HOST = 'mqtt_host'

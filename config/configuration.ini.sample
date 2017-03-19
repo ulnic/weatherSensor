@@ -1,5 +1,5 @@
 [APP]
-polling_interval = 5
+polling_interval = 300
 use_mock_sensor = False
 
 [MQTT]
@@ -8,30 +8,34 @@ mqtt_port = 1883
 mqtt_topic = weatherSensor/test/rpi
 
 [SENSOR_TEMPERATURE]
-enable_sensor = True
-sensor_calibration = -3.0
+sensor_enable = True
+sensor_calibration = 0.0
 sensor_json_key = temperature
+#Supported types are HTU21D and SHT31
+sensor_type = HTU21D
 
 [SENSOR_HUMIDITY]
-enable_sensor = True
+sensor_enable = True
 sensor_calibration = 0.0
 sensor_json_key = humidity
+#Supported types are HTU21D and SHT31
+sensor_type = HTU21D
 
 [SENSOR_LIGHT]
-enable_sensor = True
+sensor_enable = True
 sensor_calibration = 0.0
 sensor_json_key = light
 sensor_gpio_pin = 18
 
 [SENSOR_IP_ADDRESS]
-enable_sensor = True
+sensor_enable = True
 sensor_json_key = ipaddress
-interface = en0
+interface = wlan0
 
 [SENSOR_CPU]
-enable_sensor = True
+sensor_enable = True
 sensor_json_key = cpu
 
 [WIFI]
-wifi_ping_host = 192.168.0.200
-polling_interval = 10
+wifi_ping_host = 8.8.8.8
+polling_interval = 500

@@ -28,3 +28,27 @@ class HTU21D(object):
         """
         print('*** MOCK HUMIDITY READING MOCK ***')
         return float(25.5)
+
+
+class SHT31(object):
+    """
+    Mock SHT31 Class
+    """
+    def __init__(self):
+        time.sleep(.1)
+
+    def read_temperature(self):
+        """
+        MOCK temperature method , always returning fixed value
+        :return: 18.5 (always)
+        """
+        print('*** MOCK TEMPERATURE READING MOCK ***')
+        return 18.5
+
+    def read_humidity(self):
+        """
+        MOCK humidity method , always returning fixed value
+        :return: 33.3 (always)
+        """
+        print('*** MOCK HUMIDITY READING MOCK ***')
+        return float(33.3)

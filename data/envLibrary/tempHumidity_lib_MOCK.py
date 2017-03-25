@@ -30,6 +30,7 @@ class HTU21D(object):
         return float(25.5)
 
 
+# noinspection PyMethodMayBeStatic
 class SHT31(object):
     """
     Mock SHT31 Class

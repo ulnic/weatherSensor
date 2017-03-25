@@ -157,7 +157,7 @@ SHT31_STATUS_HUMIDITY_ALERT = 0x0800
 SHT31_STATUS_HEATER_ACTIVE = 0x2000
 SHT31_STATUS_ALERT_PENDING = 0x8000
 
-
+# noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
 class SHT31(object):
     def __init__(self, address=SHT31_I2CADDR, i2c=None,
                  **kwargs):

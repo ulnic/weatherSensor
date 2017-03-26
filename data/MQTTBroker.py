@@ -34,7 +34,7 @@ class MQTTBroker(object):
         # in 3 times the length of the polling interval.
         set_timer = 3 * data.AppContext.AppContext.get_polling_interval()
 
-        t = threading.Timer(set_timer, reboot )
+        t = threading.Timer(set_timer, reboot)
         t.setDaemon(True)
         t.start()
 

@@ -67,7 +67,7 @@ Set the timezone to make sure timestamps are correct
     sudo raspi-config
     [Internationalisation Options]
     [Change Timezone]
-    [Interfacing Options] --> [I2C Interface] --> Enable / Yes
+    [Interfacing Options] --> [I2C] --> Enable / Yes
 
 Clone the weatherSensor github repository
 
@@ -76,6 +76,10 @@ Clone the weatherSensor github repository
 Install weatherSensor dependencies (this includes [RPI.GPIO](https://pypi.python.org/pypi/RPi.GPIO) and [MQTT PAHO](https://github.com/eclipse/paho.mqtt.python))
 
     sudo pip install -r weatherSensor/install/requirements.txt
+
+Set permissions in case of for all files and directories
+
+    sudo chmod 755 -R *
 
 Create the settings file `/home/pi/weatherSensor/config/configuration.ini`.  This file specifies what sensor pin to monitor, what messages you want, and what services to send the message to. 
 Configure as per below:

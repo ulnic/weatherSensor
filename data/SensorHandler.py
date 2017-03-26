@@ -77,6 +77,8 @@ class SensorHandler(threading.Thread):
                     bool(keys[Constant.SENSOR_ENABLE]) and keys[Constant.SENSOR_ENABLE].lower() != 'false':
                 logger.debug('{0}  ---  true'.format(sensor))
 
+                s = None
+
                 if sensor == Constant.CONFIG_SECTION_TEMPERATURE:
                     logger.info("Creating TEMPERATURE Sensor")
                     s = TemperatureSensor(keys[Constant.SENSOR_CALIBRATION], self.use_mock_sensor,

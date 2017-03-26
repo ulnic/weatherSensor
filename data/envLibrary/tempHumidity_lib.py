@@ -42,7 +42,7 @@ class I2C(object):
         self.fr.close()
 
 
-# noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
+# noinspection PyMissingOrEmptyDocstring, PyMethodMayBeStatic
 class HTU21D(object):
     """
     HTU21D-f from Adafruit class
@@ -177,10 +177,10 @@ class SHT31(object):
         time.sleep(0.01)  # Wait the required time
 
     def clear_status(self):
-        self._writeCommand(SHT31_CLEARSTATUS);
+        self._writeCommand(SHT31_CLEARSTATUS)
 
     def read_status(self):
-        self._writeCommand(SHT31_READSTATUS);
+        self._writeCommand(SHT31_READSTATUS)
         buffer = self._device.readList(0, 3)
         stat = buffer[0] << 8 | buffer[1]
         if buffer[2] != self._crc8(buffer[0:2]):
@@ -244,8 +244,8 @@ class SHT31(object):
     def _crc8(self, buffer):
         """ Polynomial 0x31 (x8 + x5 +x4 +1) """
 
-        polynomial = 0x31;
-        crc = 0xFF;
+        polynomial = 0x31
+        crc = 0xFF
 
         index = 0
         for index in range(0, len(buffer)):

@@ -7,8 +7,10 @@ import time
 import io
 import fcntl
 
+
 I2C_SLAVE = 0x0703
-HTU21D_ADDR = 0x40
+
+HTU21D_ADDR = 0x40  # HTU21D default address.
 CMD_READ_TEMP_HOLD = "\xE3"
 CMD_READ_HUM_HOLD = "\xE5"
 CMD_READ_TEMP_NOHOLD = "\xF3"
@@ -16,6 +18,8 @@ CMD_READ_HUM_NOHOLD = "\xF5"
 CMD_WRITE_USER_REG = "\xE6"
 CMD_READ_USER_REG = "\xE7"
 CMD_SOFT_RESET = "\xFE"
+
+SHT31_I2CADDR = 0x44  # SHT31D default address
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -106,6 +110,54 @@ class HTU21D(object):
             return -255
 
 
+class SHT31(object):
+
+    def __init__(self, address=SHT31_I2CADDR, i2c=None, **kwargs):
+        # Get I2C bus
+
+        self.bus = None
+        try:
+            import smbus
+            self.bus = smbus.SMBus(1)
+        except ImportError as err:
+            print("FATAL ERROR, Could not import SHT31 BUS libraries in tempHumidity_lib.py")
+            print("Error was [%s]".format(err.__str__()))
+
+
+    def read_temperature_humidity(self):
+
+        # SHT31 address, 0x44(68)
+        # Send measurement command, 0x2C(44)
+        # 0x06(06)	High repeatability measurement
+        self.bus.write_i2c_block_data(0x44, 0x2C, [0x06])
+        time.sleep(0.5)
+
+        # SHT31 address, 0x44(68)
+        # Read data back from 0x00(00), 6 bytes
+        # Temp MSB, Temp LSB, Temp CRC, Humididty MSB, Humidity LSB, Humidity CRC
+        data = self.bus.read_i2c_block_data(0x44, 0x00, 6)
+
+        # Convert the data
+        raw_temperature = data[0] * 256 + data[1]
+        temperature = -45 + (175 * raw_temperature / 65535.0)
+
+        raw_humidity = data[3] * 256 + data[4]
+        humidity = 100 * raw_humidity / 0xFFFF  # 0xFFFF is equivalent to 65535.0
+
+        return (temperature, humidity)
+
+
+    def read_temperature(self):
+        (temperature, humidity) = self.read_temperature_humidity()
+        return temperature
+
+    def read_humidity(self):
+        (temperature, humidity) = self.read_temperature_humidity()
+        return humidity
+
+
+
+
 # Copyright (c) 2014 Adafruit Industries
 # Author: Tony DiCola
 #
@@ -133,126 +185,126 @@ class HTU21D(object):
 #import time
 
 # SHT31D default address.
-SHT31_I2CADDR = 0x44
-
-# SHT31D Registers
-
-SHT31_MEAS_HIGHREP_STRETCH = 0x2C06
-SHT31_MEAS_MEDREP_STRETCH = 0x2C0D
-SHT31_MEAS_LOWREP_STRETCH = 0x2C10
-SHT31_MEAS_HIGHREP = 0x2400
-SHT31_MEAS_MEDREP = 0x240B
-SHT31_MEAS_LOWREP = 0x2416
-SHT31_READSTATUS = 0xF32D
-SHT31_CLEARSTATUS = 0x3041
-SHT31_SOFTRESET = 0x30A2
-SHT31_HEATER_ON = 0x306D
-SHT31_HEATER_OFF = 0x3066
-
-SHT31_STATUS_DATA_CRC_ERROR = 0x0001
-SHT31_STATUS_COMMAND_ERROR = 0x0002
-SHT31_STATUS_RESET_DETECTED = 0x0010
-SHT31_STATUS_TEMPERATURE_ALERT = 0x0400
-SHT31_STATUS_HUMIDITY_ALERT = 0x0800
-SHT31_STATUS_HEATER_ACTIVE = 0x2000
-SHT31_STATUS_ALERT_PENDING = 0x8000
-
-# noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
-class SHT31(object):
-    def __init__(self, address=SHT31_I2CADDR, i2c=None,
-                 **kwargs):
-        # self._logger = logging.getLogger('Adafruit_SHT.SHT31D')
-        # Create I2C device.
-        if i2c is None:
-            import Adafruit_GPIO.I2C as I2C
-            i2c = I2C
-        self._device = i2c.get_i2c_device(address, **kwargs)
-        time.sleep(0.05)  # Wait the required time
-
-    def _writeCommand(self, cmd):
-        self._device.write8(cmd >> 8, cmd & 0xFF)
-
-    def reset(self):
-        self._writeCommand(SHT31_SOFTRESET)
-        time.sleep(0.01)  # Wait the required time
-
-    def clear_status(self):
-        self._writeCommand(SHT31_CLEARSTATUS)
-
-    def read_status(self):
-        self._writeCommand(SHT31_READSTATUS)
-        buffer = self._device.readList(0, 3)
-        stat = buffer[0] << 8 | buffer[1]
-        if buffer[2] != self._crc8(buffer[0:2]):
-            return None
-        return stat
-
-    def is_data_crc_error(self):
-        return bool(self.read_status() & SHT31_STATUS_DATA_CRC_ERROR)
-
-    def is_command_error(self):
-        return bool(self.read_status() & SHT31_STATUS_COMMAND_ERROR)
-
-    def is_reset_detected(self):
-        return bool(self.read_status() & SHT31_STATUS_RESET_DETECTED)
-
-    def is_tracking_temperature_alert(self):
-        return bool(self.read_status() & SHT31_STATUS_TEMPERATURE_ALERT)
-
-    def is_tracking_humidity_alert(self):
-        return bool(self.read_status() & SHT31_STATUS_HUMIDITY_ALERT)
-
-    def is_heater_active(self):
-        return bool(self.read_status() & SHT31_STATUS_HEATER_ACTIVE)
-
-    def is_alert_pending(self):
-        return bool(self.read_status() & SHT31_STATUS_ALERT_PENDING)
-
-    def set_heater(self, doEnable=True):
-        if doEnable:
-            self._writeCommand(SHT31_HEATER_ON)
-        else:
-            self._writeCommand(SHT31_HEATER_OFF)
-
-    def read_temperature_humidity(self):
-        self._writeCommand(SHT31_MEAS_HIGHREP)
-        time.sleep(0.015)
-        buffer = self._device.readList(0, 6)
-
-        if buffer[2] != self._crc8(buffer[0:2]):
-            return (float("nan"), float("nan"))
-
-        rawTemperature = buffer[0] << 8 | buffer[1]
-        temperature = 175.0 * rawTemperature / 0xFFFF - 45.0
-
-        if buffer[5] != self._crc8(buffer[3:5]):
-            return (float("nan"), float("nan"))
-
-        rawHumidity = buffer[3] << 8 | buffer[4]
-        humidity = 100.0 * rawHumidity / 0xFFFF
-
-        return (temperature, humidity)
-
-    def read_temperature(self):
-        (temperature, humidity) = self.read_temperature_humidity()
-        return temperature
-
-    def read_humidity(self):
-        (temperature, humidity) = self.read_temperature_humidity()
-        return humidity
-
-    def _crc8(self, buffer):
-        """ Polynomial 0x31 (x8 + x5 +x4 +1) """
-
-        polynomial = 0x31
-        crc = 0xFF
-
-        index = 0
-        for index in range(0, len(buffer)):
-            crc ^= buffer[index]
-            for i in range(8, 0, -1):
-                if crc & 0x80:
-                    crc = (crc << 1) ^ polynomial
-                else:
-                    crc = (crc << 1)
-        return crc & 0xFF
+# SHT31_I2CADDR = 0x44
+#
+# # SHT31D Registers
+#
+# SHT31_MEAS_HIGHREP_STRETCH = 0x2C06
+# SHT31_MEAS_MEDREP_STRETCH = 0x2C0D
+# SHT31_MEAS_LOWREP_STRETCH = 0x2C10
+# SHT31_MEAS_HIGHREP = 0x2400
+# SHT31_MEAS_MEDREP = 0x240B
+# SHT31_MEAS_LOWREP = 0x2416
+# SHT31_READSTATUS = 0xF32D
+# SHT31_CLEARSTATUS = 0x3041
+# SHT31_SOFTRESET = 0x30A2
+# SHT31_HEATER_ON = 0x306D
+# SHT31_HEATER_OFF = 0x3066
+#
+# SHT31_STATUS_DATA_CRC_ERROR = 0x0001
+# SHT31_STATUS_COMMAND_ERROR = 0x0002
+# SHT31_STATUS_RESET_DETECTED = 0x0010
+# SHT31_STATUS_TEMPERATURE_ALERT = 0x0400
+# SHT31_STATUS_HUMIDITY_ALERT = 0x0800
+# SHT31_STATUS_HEATER_ACTIVE = 0x2000
+# SHT31_STATUS_ALERT_PENDING = 0x8000
+#
+# # noinspection PyMissingOrEmptyDocstring,PyMethodMayBeStatic
+# class SHT31(object):
+#     def __init__(self, address=SHT31_I2CADDR, i2c=None,
+#                  **kwargs):
+#         # self._logger = logging.getLogger('Adafruit_SHT.SHT31D')
+#         # Create I2C device.
+#         if i2c is None:
+#             # import Adafruit_GPIO.I2C as I2C
+#             i2c = I2C
+#         self._device = i2c.get_i2c_device(address, **kwargs)
+#         time.sleep(0.05)  # Wait the required time
+#
+#     def _writeCommand(self, cmd):
+#         self._device.write8(cmd >> 8, cmd & 0xFF)
+#
+#     def reset(self):
+#         self._writeCommand(SHT31_SOFTRESET)
+#         time.sleep(0.01)  # Wait the required time
+#
+#     def clear_status(self):
+#         self._writeCommand(SHT31_CLEARSTATUS)
+#
+#     def read_status(self):
+#         self._writeCommand(SHT31_READSTATUS)
+#         buffer = self._device.readList(0, 3)
+#         stat = buffer[0] << 8 | buffer[1]
+#         if buffer[2] != self._crc8(buffer[0:2]):
+#             return None
+#         return stat
+#
+#     def is_data_crc_error(self):
+#         return bool(self.read_status() & SHT31_STATUS_DATA_CRC_ERROR)
+#
+#     def is_command_error(self):
+#         return bool(self.read_status() & SHT31_STATUS_COMMAND_ERROR)
+#
+#     def is_reset_detected(self):
+#         return bool(self.read_status() & SHT31_STATUS_RESET_DETECTED)
+#
+#     def is_tracking_temperature_alert(self):
+#         return bool(self.read_status() & SHT31_STATUS_TEMPERATURE_ALERT)
+#
+#     def is_tracking_humidity_alert(self):
+#         return bool(self.read_status() & SHT31_STATUS_HUMIDITY_ALERT)
+#
+#     def is_heater_active(self):
+#         return bool(self.read_status() & SHT31_STATUS_HEATER_ACTIVE)
+#
+#     def is_alert_pending(self):
+#         return bool(self.read_status() & SHT31_STATUS_ALERT_PENDING)
+#
+#     def set_heater(self, doEnable=True):
+#         if doEnable:
+#             self._writeCommand(SHT31_HEATER_ON)
+#         else:
+#             self._writeCommand(SHT31_HEATER_OFF)
+#
+#     def read_temperature_humidity(self):
+#         self._writeCommand(SHT31_MEAS_HIGHREP)
+#         time.sleep(0.015)
+#         buffer = self._device.readList(0, 6)
+#
+#         if buffer[2] != self._crc8(buffer[0:2]):
+#             return (float("nan"), float("nan"))
+#
+#         rawTemperature = buffer[0] << 8 | buffer[1]
+#         temperature = 175.0 * rawTemperature / 0xFFFF - 45.0
+#
+#         if buffer[5] != self._crc8(buffer[3:5]):
+#             return (float("nan"), float("nan"))
+#
+#         rawHumidity = buffer[3] << 8 | buffer[4]
+#         humidity = 100.0 * rawHumidity / 0xFFFF
+#
+#         return (temperature, humidity)
+#
+#     def read_temperature(self):
+#         (temperature, humidity) = self.read_temperature_humidity()
+#         return temperature
+#
+#     def read_humidity(self):
+#         (temperature, humidity) = self.read_temperature_humidity()
+#         return humidity
+#
+#     def _crc8(self, buffer):
+#         """ Polynomial 0x31 (x8 + x5 +x4 +1) """
+#
+#         polynomial = 0x31
+#         crc = 0xFF
+#
+#         index = 0
+#         for index in range(0, len(buffer)):
+#             crc ^= buffer[index]
+#             for i in range(8, 0, -1):
+#                 if crc & 0x80:
+#                     crc = (crc << 1) ^ polynomial
+#                 else:
+#                     crc = (crc << 1)
+#         return crc & 0xFF

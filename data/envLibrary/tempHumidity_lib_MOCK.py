@@ -36,7 +36,7 @@ class SHT31(object):
     Mock SHT31 Class
     """
     def __init__(self):
-        time.sleep(.1)
+        time.sleep(.5)
 
     def read_temperature(self):
         """

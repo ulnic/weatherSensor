@@ -60,7 +60,7 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 
 After you ssh to the pi, install a few essential libraries:
 
-    sudo apt-get --assume-yes install python-pip i2c-tools git
+    sudo apt-get --assume-yes install python-pip i2c-tools git python-smbus
     
 Set the timezone to make sure timestamps are correct
 

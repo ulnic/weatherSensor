@@ -44,4 +44,3 @@ class MQTTBroker(object):
         logger.debug("AFTER: Successfully ran MQTT Publish")
 
         t.cancel()     # Important to cancel the timer so that the reboot does NOT occur since successful
-

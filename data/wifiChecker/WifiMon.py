@@ -64,7 +64,7 @@ class WifiMon(threading.Thread):
         try:
             ping_ret = subprocess.check_output(cmd, shell=True).rstrip('\n')
         except Exception as cpe:
-            logger.critical("Wifi Check failed with [{0}]".format(cpe.__str__()))
+            logger.critical("Wifi Check failed with [{0}]".format(str(cpe)))
 
         if len(ping_ret) < 1:
             # we lost the WLAN connection.

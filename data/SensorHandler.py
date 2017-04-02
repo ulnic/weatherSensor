@@ -127,8 +127,8 @@ class SensorHandler(threading.Thread):
                 logger.debug("Reading {0}".format(abstract_sensor.json_key))
                 data[abstract_sensor.json_key] = str(abstract_sensor.read_sensor())
         except Exception as e:
-            logger.critical("ERROR when creating Sensors. Error was [{0}]".format(e.__str__()))
+            logger.critical("ERROR when creating Sensors. Error was [{0}]".format(str(e)))
 
         json_data = json.dumps(data)
-        logger.debug("JSON STRING BUILD: [{0}]".format(json_data.__str__()))
+        logger.debug("JSON STRING BUILD: [{0}]".format(str(json_data)))
         return json_data

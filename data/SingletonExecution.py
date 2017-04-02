@@ -30,4 +30,4 @@ class SingletonExecution(object):
                     print("KILLED old weatherSensor.py record [ {0} ]".format(pid))
                 except Exception as e:
                     print("err - could not kill previous running instance [ {0} ]".format(pid))
-                    print("Error was: [{0}]".format(e.__str__()))
+                    print("Error was: [{0}]".format(str(e)))

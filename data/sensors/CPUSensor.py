@@ -33,7 +33,7 @@ class CPUSensor(AbstractSensor):
 
             _cpu_temp = _cpu_temp.replace("temp=", "").replace("'C", "").rstrip('\n')
         except Exception as e:
-            logger.warn("Could not read CPU, due to {0}".format(e.__str__()))
+            logger.warn("Could not read CPU, due to {0}".format(str(e)))
 
         logger.info("CPU Temperature Reading is {0}".format(_cpu_temp))
 

@@ -40,10 +40,10 @@ def reboot():
             try:
                 subprocess.check_output(cmd, shell=True).rstrip('\n')
             except Exception as cpe:
-                logger.critical("Reboot failed with [{0}]".format(cpe.__str__()))
+                logger.critical("Reboot failed with [{0}]".format(str(cpe)))
 
         logger.warning(cmd)
 
     except ImportError as err:
         print("FATAL ERROR, Could not import correct libraries in Utilities.reboot_if_no_recent_publish")
-        print("Error was [%s]".format(err.__str__()))
+        print("Error was [%s]".format(str(err)))

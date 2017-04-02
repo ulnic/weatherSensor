@@ -37,7 +37,7 @@ class IPAddressSensor(AbstractSensor):
             _ip_address = subprocess.check_output(cmd, shell=True)
             _ip_address = _ip_address.rstrip('\n')
         except Exception as e:
-            logger.warn("Could not read IP, due to: {0}".format(e.__str__()))
+            logger.warn("Could not read IP, due to: {0}".format(str(e)))
             _ip_address = 'error'
 
         logger.info("Local IP Address is {0}".format(_ip_address))

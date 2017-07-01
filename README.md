@@ -8,7 +8,7 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 
 * A [Raspberry Pi Zero](https://www.raspberrypi.org/products/pi-zero/).  Or any Raspberry Pi.
 * Any MicroSD card. 
-* A USB WiFi dongle (and a OTG adapter if you choose the Pi Zero)
+* A USB WiFi dongle (if not built into the Raspberry already)
 * An [HTU21D-F Temperature & Humidity Sensor](https://learn.adafruit.com/adafruit-htu21d-f-temperature-humidity-sensor/overview)
 * Any microUSB power source
 
@@ -24,36 +24,34 @@ These instructions are for a simple Raspberry Pi project that can be used in any
 3. Add an empty file named `ssh` to the **boot partition**.  This enables the ssh daemon. This can be done via terminal / PuTTy and then
  `sudo touch ssh`
 
-4. Edit these files on the **OS partition**:
-  * Edit `/etc/hostname` and `/etc/hosts` to change “raspberrypi” to a **unique host name**
-    *  `sudo nano /etc/hostname` and `sudo nano /etc/hosts`
-  * Edit `/etc/wpa_supplicant/wpa_supplicant.conf` to add your WiFi authentication:
-    * `sudo nano `/etc/wpa_supplicant/wpa_supplicant.conf`
+4. To setup the wifi headless (e.g. without having to add a usb-network adapter and cable), then:
+    * Create a file called `wpa_supplicant.conf` by using the command
+   `sudo nano wpa_supplicant.conf`
+    * Add the following to this file
+        ```
+            network={
+                ssid="your WiFi name (SSID)"
+                psk="your WiFi password"
+            }
+        ```
+   * Save & Exit. Ctrl + X if using nano
 
-```
-    network={
-	    ssid="your WiFi name (SSID)"
-	    psk="your WiFi password"
-    }
-```
+5. Eject the SD card, insert into Pi, and plug it in. It should now automatically come onto your wifi. 
 
-5. Via Terminal or PuTTy (or similar), log into the raspberry pi and ensure it's up 2 date
+6. Via SSH, log into the raspberry pi and ensure it's up 2 date
  ```
+ ssh pi@YOUR.IP.ADR.RESS (password: `raspberry`)
  sudo apt-get update
  sudo apt-get upgrade
 ```
 
-
 # Step 2: Create the hardware
 
-1. Insert the microSD card into the Raspberry Pi.
+1. Disconnect the Pi and 
 
-2. Add the [WiFi dongle](https://www.adafruit.com/products/814) to Raspberry Pi USB port.  A Raspberry Pi Zero will need a [OTG Adapter adaptor](https://www.adafruit.com/product/2910).
+2. Add the HTU21D-F Temperature & Humidity Sensor to [Raspberry Pi GPIO pins](https://pinout.xyz/). 
 
-3. Add the HTU21D-F Temperature & Humidity Sensor to [Raspberry Pi GPIO pins](https://pinout.xyz/). 
-
-4. Plug in a power source, and you’re good to go.  Within a few seconds, you should be able to connect to the Pi with: “ssh pi@*{**unique host name**}*” (password: `raspberry`)
-
+3. Plug in a power source, and you’re good to go again.
 
 
 # Step 3: Create the software
